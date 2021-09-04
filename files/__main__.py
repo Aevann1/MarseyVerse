@@ -89,9 +89,6 @@ def drop_connection():
 @app.before_request
 def before_request():
 
-	if app.config["BOT_DISABLE"] and request.headers.get("X-User-Type")=="Bot":
-		abort(503)
-
 	g.timestamp = int(time.time())
 
 	#do not access session for static files
