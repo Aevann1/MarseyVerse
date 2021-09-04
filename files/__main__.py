@@ -30,7 +30,6 @@ app.config["COINS_NAME"]=environ.get("COINS_NAME").strip()
 app.config["GUMROAD_LINK"]=environ.get("GUMROAD_LINK", "https://marsey1.gumroad.com/l/tfcvri").strip()
 app.config['DATABASE_URL'] = environ.get("DATABASE_CONNECTION_POOL_URL",environ.get("DATABASE_URL"))
 
-app.config['SECRET_KEY'] = environ.get('MASTER_KEY')
 app.config["SERVER_NAME"] = environ.get("DOMAIN").strip()
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
 
