@@ -283,4 +283,4 @@ def marseyverse():
 			listing.append(Post(post))
 		count += 1
 
-	return render_template("marseyverse.html", v=v, listing=listing)
+	return render_template("marseyverse.html", listing=listing)
