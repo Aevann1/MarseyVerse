@@ -26,9 +26,6 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=3)
 app.url_map.strict_slashes = False
 
 app.config["SITE_NAME"]=environ.get("SITE_NAME").strip()
-app.config["COINS_NAME"]=environ.get("COINS_NAME").strip()
-app.config["GUMROAD_LINK"]=environ.get("GUMROAD_LINK", "https://marsey1.gumroad.com/l/tfcvri").strip()
-app.config['DATABASE_URL'] = environ.get("DATABASE_CONNECTION_POOL_URL",environ.get("DATABASE_URL"))
 
 app.config['SECRET_KEY'] = environ.get('MASTER_KEY')
 app.config["SERVER_NAME"] = environ.get("DOMAIN").strip()
@@ -59,23 +56,8 @@ else:
 
 app.config["CACHE_DIR"] = environ.get("CACHE_DIR", "cache")
 
-# captcha configs
-app.config["HCAPTCHA_SITEKEY"] = environ.get("HCAPTCHA_SITEKEY","").strip()
-app.config["HCAPTCHA_SECRET"] = environ.get("HCAPTCHA_SECRET","").strip()
-
-# antispam configs
-app.config["SPAM_SIMILARITY_THRESHOLD"] = float(environ.get("SPAM_SIMILARITY_THRESHOLD", 0.5))
-app.config["SPAM_SIMILAR_COUNT_THRESHOLD"] = int(environ.get("SPAM_SIMILAR_COUNT_THRESHOLD", 5))
-app.config["SPAM_URL_SIMILARITY_THRESHOLD"] = float(environ.get("SPAM_URL_SIMILARITY_THRESHOLD", 0.5))
-app.config["COMMENT_SPAM_SIMILAR_THRESHOLD"] = float(environ.get("COMMENT_SPAM_SIMILAR_THRESHOLD", 0.5))
-app.config["COMMENT_SPAM_COUNT_THRESHOLD"] = int(environ.get("COMMENT_SPAM_COUNT_THRESHOLD", 0.5))
-
 app.config["CACHE_DEFAULT_TIMEOUT"] = 60
 app.config["CACHE_KEY_PREFIX"] = "flask_caching_"
-
-app.config["READ_ONLY"]=bool(int(environ.get("READ_ONLY", "0")))
-app.config["BOT_DISABLE"]=bool(int(environ.get("BOT_DISABLE", False)))
-
 
 Markdown(app)
 cache = Cache(app)
@@ -96,22 +78,7 @@ limiter = Limiter(
 	strategy="fixed-window"
 )
 
-
-
 local_ban_cache={}
-
-UA_BAN_CACHE_TTL = int(environ.get("UA_BAN_CACHE_TTL", 3600))
-
-@cache.memoize(timeout=UA_BAN_CACHE_TTL)
-def get_useragent_ban_response(user_agent_str):
-	"""
-	Given a user agent string, returns a tuple in the form of:
-	(is_user_agent_banned, (insult, status_code))
-	"""
-	#if request.path.startswith("/socket.io/"):
-	#	return False, (None, None)
-
-	return False, (None, None)
 
 def drop_connection():
 
@@ -134,8 +101,7 @@ def before_request():
 		if not session.get("session_id"):
 			session["session_id"] = secrets.token_hex(16)
 
-	ua_banned, response_tuple = get_useragent_ban_response(
-		request.headers.get("User-Agent", "NoAgent"))
+	ua_banned, response_tuple = False, (None, None)
 	if ua_banned and request.path != "/robots.txt":
 		return response_tuple
 
