@@ -284,3 +284,17 @@ def marseyverse():
 		count += 1
 
 	return render_template("marseyverse.html", listing=listing)
+
+@app.get("/assets/favicon.ico")
+def favicon():
+	return send_file(f"./assets/images/{site_name}/icon.gif")
+
+@app.route('/assets/<path:path>')
+@limiter.exempt
+def static_service(path):
+	resp = make_response(send_from_directory('./assets', path))
+	if request.path.endswith('.gif') or request.path.endswith('.ttf') or request.path.endswith('.woff') or request.path.endswith('.woff2'):
+		resp.headers.remove("Cache-Control")
+		resp.headers.add("Cache-Control", "public, max-age=2628000")
+
+	return resp
