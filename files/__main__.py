@@ -224,7 +224,7 @@ def marseyverse():
 
 @app.get("/assets/favicon.ico")
 def favicon():
-	return send_file(f"./assets/images/{site_name}/icon.gif")
+	return send_file(f"./assets/images/icon.gif")
 
 @app.route('/assets/<path:path>')
 @limiter.exempt
