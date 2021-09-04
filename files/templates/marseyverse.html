@@ -106,7 +106,6 @@
 							{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:#1DA1F2" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{p.author.verified}}"></i>
 							{% endif %}
 							<a href="{{p.author.url}}"style="color: #{{p.author.namecolor}};  font-weight: bold;" class="user-name"><img loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"/><span {% if p.author.patron %}class="patron" style="background-color:#{{p.author.namecolor}};"{% endif %}>{{p.author.username}}</span></a>{% if p.author.customtitle %}<bdi  style="color: #{{p.author.titlecolor}}">&nbsp;&nbsp;{% if p.author.quadrant %}<img loading="lazy" height="20" src="/assets/images/PCM/quadrants/{{p.author.quadrant}}.gif">{% endif %}{{p.author.customtitle | safe}}</bdi>{% endif %}
-							<span data-toggle="tooltip" data-placement="bottom" id="timestamp-{{p.id}}" title="">&nbsp;{{p.age_string}}</span>
 							&nbsp;
 							({% if p.url %}<a href="/search/posts/?q=domain%3A{{p.domain}}&sort=new&t=all" target="_blank">{{p.domain}}</a>{% else %}text post{% endif %})
 							
