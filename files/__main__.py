@@ -98,8 +98,6 @@ limiter = Limiter(
 )
 
 
-Base = declarative_base()
-
 
 local_ban_cache={}
 
