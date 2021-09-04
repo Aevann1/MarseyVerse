@@ -11,16 +11,6 @@
 								</div>
 						</a>
 				</button>
-{% if v and v.defaultsorting == 'new' %}
-				<button type="button" class="col px-0 btn btn-dead m-0" style="border-color: transparent !important;">
-						<a href="/?sort=hot&t=all" class="text-decoration-none" role="button">
-								<div class="text-center {% if request.full_path=='/?sort=hot&t=all' %}text-purple{% else %}text-muted{% endif %}">
-										<i class="fas fa-fire text-lg d-block"></i>
-										<div class="text-small">Hot</div>
-								</div>
-						</a>
-				</button>
-{% else %}
 				<button type="button" class="col px-0 btn btn-dead m-0" style="border-color: transparent !important;">
 						<a href="/?sort=new&t=all" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.full_path=='/?sort=new&t=all' %}text-purple{% else %}text-muted{% endif %}">
@@ -29,7 +19,6 @@
 								</div>
 						</a>
 				</button>
-{% endif %}
 				<button type="button" class="col px-2 btn btn-dead m-0" style="border-color: transparent !important;">
 						<a href="/comments" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.path=='/comments' %}text-purple{% else %}text-muted{% endif %}">
@@ -46,16 +35,6 @@
 								</div>
 						</a>
 				</button>
-{% if v %}
-				<button type="button" class="col px-0 pr-2 btn btn-dead m-0" style="border-color: transparent !important;">
-						<a href="{{v.url}}" class="text-decoration-none" role="button">
-								<div class="text-center {% if request.path==v.url %}text-purple{% else %}text-muted{% endif %}">
-										<i class="fas fa-user-circle text-lg d-block"></i>
-										<div class="text-small">Profile</div>
-								</div>
-						</a>
-				</button>
-{% else %}
 				<button type="button" class="col px-0 pr-2 btn btn-dead m-0" style="border-color: transparent !important;">
 						<a href="/signup" class="text-decoration-none" role="button">
 								<div class="text-center text-muted">
@@ -64,6 +43,5 @@
 								</div>
 						</a>
 				</button>
-{% endif %}
 		</div>
 </div>
