@@ -266,8 +266,8 @@ class Post(object):
         for key in my_dict:
             setattr(self, key, my_dict[key])
 
-@app.get("/")
-def marseyverse():
+@cache.memoize(timeout=86400)
+def postcache():
 	count = 0
 	drama = requests.get("https://rdrama.net/", headers={"Authorization": "sex"}).json()["data"]
 	pcm = requests.get("https://pcmemes.net/", headers={"Authorization": "sex"}).json()["data"]
@@ -276,14 +276,18 @@ def marseyverse():
 
 	listing = []
 
-	while count < 100:
+	while count < 50:
 		for site in [drama,pcm,gigachad,weebzone]:
 			try: post = site[count]
 			except: continue
 			listing.append(Post(post))
 		count += 1
 
-	return render_template("marseyverse.html", listing=listing)
+	return listing
+
+@app.get("/")
+def marseyverse():
+	return render_template("marseyverse.html", listing=postcache())
 
 @app.get("/assets/favicon.ico")
 def favicon():
