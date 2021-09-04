@@ -20,6 +20,7 @@ import gevent
 
 from redis import ConnectionPool
 
+from os import environ
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__,
