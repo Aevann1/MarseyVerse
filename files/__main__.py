@@ -267,7 +267,7 @@ class Post(object):
             setattr(self, key, my_dict[key])
 
 @app.get("/")
-def marseyverse(v):
+def marseyverse():
 	count = 0
 	drama = requests.get("https://rdrama.net/", headers={"Authorization": "sex"}).json()["data"]
 	pcm = requests.get("https://pcmemes.net/", headers={"Authorization": "sex"}).json()["data"]
