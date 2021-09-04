@@ -266,7 +266,7 @@ class Post(object):
         for key in my_dict:
             setattr(self, key, my_dict[key])
 
-@cache.memoize(timeout=86400)
+@cache.memoize(timeout=600)
 def postcache():
 	count = 0
 	drama = requests.get("https://rdrama.net/", headers={"Authorization": "sex"}).json()["data"]
@@ -280,10 +280,17 @@ def postcache():
 		for site in [drama,pcm,gigachad,weebzone]:
 			try: post = site[count]
 			except: continue
-			listing.append(Post(post))
+			post = Post(post)
+			if post.url.lower().endswith('.jpg') or post.url.lower().endswith('.png') or post.url.lower().endswith('.gif') or post.url.lower().endswith('.jpeg') or post.url.lower().endswith('?maxwidth=9999'): post.is_image = True
+			listing.append(post)
 		count += 1
 
 	return listing
+
+@app.get("/dump")
+def marseyverse():
+	cache.clear()
+	return {"message": "Internal cache cleared."}
 
 @app.get("/")
 def marseyverse():
