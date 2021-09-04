@@ -19,6 +19,7 @@ import redis
 import gevent
 import requests
 
+import time
 from redis import ConnectionPool
 
 from os import environ
