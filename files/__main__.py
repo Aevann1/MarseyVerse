@@ -288,7 +288,7 @@ def postcache():
 	return listing
 
 @app.get("/dump")
-def marseyverse():
+def dump():
 	cache.clear()
 	return {"message": "Internal cache cleared."}
 
