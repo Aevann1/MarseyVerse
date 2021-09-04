@@ -111,7 +111,7 @@
 							({% if p.url %}<a href="/search/posts/?q=domain%3A{{p.domain}}&sort=new&t=all" target="_blank">{{p.domain}}</a>{% else %}text post{% endif %})
 							
 							{% if p.edited_utc %}&nbsp;&nbsp;Edited <span data-toggle="tooltip" data-placement="bottom" id="edited_timestamp-{{p.id}}" title="">{{p.edited_string}}</span>{% endif %}
-							&nbsp;&nbsp;{{p.views}} views
+							&nbsp;&nbsp;{{p.site}}
 						</div>
 			
 						<h5 class="card-title post-title text-left w-lg-75 mb-0 pb-0 pb-md-1"><a {% if v and v.newtab %}target="_blank"{% endif %} href="{{p.permalink}}" class="stretched-link">

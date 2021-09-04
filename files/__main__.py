@@ -204,7 +204,14 @@ def postcache():
 			except: continue
 			post = Post(post)
 			if post.url.lower().endswith('.jpg') or post.url.lower().endswith('.png') or post.url.lower().endswith('.gif') or post.url.lower().endswith('.jpeg') or post.url.lower().endswith('?maxwidth=9999'): post.is_image = True
-			if site == vidya: post.downvotes = 0
+			if site == drama: post.site = "rdrama.net"
+			elif site == pcm: post.site = "pcmemes.net"
+			elif site == gigachad: post.site = "gigachadlife.com"
+			elif site == weebzone: post.site = "weebzone.xyz"
+			elif site == vidya:
+				post.site = "vidya.cafe"
+				post.downvotes = 0
+
 			listing.append(post)
 		count += 1
 
