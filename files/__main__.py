@@ -34,7 +34,7 @@ app.config['SECRET_KEY'] = environ.get('MASTER_KEY')
 app.config["SERVER_NAME"] = environ.get("DOMAIN").strip()
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
 
-app.config["SESSION_COOKIE_NAME"] = "session_" + environ.get("SITE_NAME").strip().lower()
+app.config["SESSION_COOKIE_NAME"] = "session_marseyverse"
 app.config["VERSION"] = "1.0.0"
 app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024
 app.config["SESSION_COOKIE_SECURE"] = bool(int(environ.get("FORCE_HTTPS", 1)))
@@ -122,9 +122,6 @@ def drop_connection():
 # enforce https
 @app.before_request
 def before_request():
-
-	if request.method.lower() != "get" and app.config["READ_ONLY"]:
-		return {"error":f"{app.config['SITE_NAME']} is currently in read-only mode."}, 500
 
 	if app.config["BOT_DISABLE"] and request.headers.get("X-User-Type")=="Bot":
 		abort(503)
