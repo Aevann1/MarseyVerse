@@ -270,6 +270,7 @@ class Post(object):
 def postcache():
 	count = 0
 	drama = requests.get("https://rdrama.net/", headers={"Authorization": "sex"}).json()["data"]
+	vidya = requests.get("https://vidya.cafe/", headers={"Authorization": "sex"}).json()["data"]
 	pcm = requests.get("https://pcmemes.net/", headers={"Authorization": "sex"}).json()["data"]
 	gigachad = requests.get("https://gigachadlife.com/", headers={"Authorization": "sex"}).json()["data"]
 	weebzone = requests.get("https://weebzone.xyz/", headers={"Authorization": "sex"}).json()["data"]
@@ -277,7 +278,7 @@ def postcache():
 	listing = []
 
 	while count < 50:
-		for site in [drama,pcm,gigachad,weebzone]:
+		for site in [drama,vidya,pcm,gigachad,weebzone]:
 			try: post = site[count]
 			except: continue
 			post = Post(post)
