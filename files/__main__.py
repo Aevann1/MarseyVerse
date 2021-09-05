@@ -157,7 +157,7 @@ def postcache():
 	pcm = requests.get("https://pcmemes.net/", headers={"Authorization": "sex"}).json()["data"]
 	gigachad = requests.get("https://gigachadlife.com/", headers={"Authorization": "sex"}).json()["data"]
 	weebzone = requests.get("https://weebzone.xyz/", headers={"Authorization": "sex"}).json()["data"]
-	marseytech = requests.get("https://weebzone.xyz/", headers={"Authorization": "sex"}).json()["data"]
+	marseytech = requests.get("https://marsey.tech/", headers={"Authorization": "sex"}).json()["data"]
 
 	listing = []
 
