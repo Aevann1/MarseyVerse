@@ -108,20 +108,6 @@
 				</div>
 			</div>
 			
-			{% if p.is_image and (not v or v.cardview) %}
-				<div style="text-align: center" class="mt-4">
-					<a target="_blank" rel="nofollow noopener noreferrer" href="{{p.url}}">
-						<img loading="lazy" src="{{p.url}}" class="img-fluid" style="max-height:500px;" alt="Unable to load image">
-					</a>
-				</div>
-			{% endif %}
-			
-			{% if p.body %}
-				<div class="d-none card rounded border pb-0 pt-3 my-2" id="post-text-{{p.id}}">
-					{{p.body | safe}}
-				</div>
-			{% endif %}
-			
 			<div class="card-footer d-block d-md-none mt-2">
 				<div class="post-actions">
 					<ul class="list-inline text-right d-flex">
@@ -165,5 +151,19 @@
 		</div>
 	</div>
 </div>
+
+{% if p.body %}
+<div class="d-none card rounded border pb-0 pt-3 my-2" id="post-text-{{p.id}}">
+	{{p.body | safe}}
+</div>
+{% endif %}
+			
+{% if p.is_image and (not v or v.cardview) %}
+<div style="text-align: center" class="mt-4">
+	<a target="_blank" rel="nofollow noopener noreferrer" href="{{p.url}}">
+		<img loading="lazy" src="{{p.url}}" class="img-fluid" style="max-height:500px;" alt="Unable to load image">
+	</a>
+</div>
+{% endif %}
 
 {% endblock %}
