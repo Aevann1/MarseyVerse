@@ -167,7 +167,7 @@ def postcache():
 			try: post = site[count]
 			except: continue
 			post = Post(post)
-			if post.url.lower().endswith('.jpg') or post.url.lower().endswith('.png') or post.url.lower().endswith('.gif') or post.url.lower().endswith('.jpeg') or post.url.lower().endswith('?maxwidth=9999'): post.is_image = True
+			if post.url and (post.url.lower().endswith('.jpg') or post.url.lower().endswith('.png') or post.url.lower().endswith('.gif') or post.url.lower().endswith('.jpeg') or post.url.lower().endswith('?maxwidth=9999')): post.is_image = True
 			if site == drama: post.site = "rdrama.net"
 			elif site == pcm: post.site = "pcmemes.net"
 			elif site == gigachad: post.site = "gigachadlife.com"
