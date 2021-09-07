@@ -172,7 +172,9 @@ def postcache():
 			elif site == gigachad: post.site = "gigachadlife.com"
 			elif site == weebzone: post.site = "weebzone.xyz"
 			elif site == marseytech: post.site = "marsey.tech"
-			elif site == dankchristian: post.site = "dankchristian.com"
+			elif site == dankchristian:
+				post.site = "dankchristian.com"
+				post.downvotes = 0
 			elif site == vidya:
 				post.site = "vidya.cafe"
 				post.downvotes = 0
