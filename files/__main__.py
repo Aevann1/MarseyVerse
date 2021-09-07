@@ -149,7 +149,7 @@ class Post(object):
         for key in my_dict:
             setattr(self, key, my_dict[key])
 
-@cache.memoize(timeout=3600)
+#@cache.memoize(timeout=3600)
 def postcache():
 	count = 0
 	drama = requests.get("https://rdrama.net/", headers={"Authorization": "sex"}).json()["data"]
