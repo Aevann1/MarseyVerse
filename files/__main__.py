@@ -159,6 +159,7 @@ def postcache():
 	weebzone = requests.get("https://weebzone.xyz/", headers={"Authorization": "sex"}).json()["data"]
 	marseytech = requests.get("https://marsey.tech/", headers={"Authorization": "sex"}).json()["data"]
 	dankchristian = requests.get("https://dankchristian.com/", headers={"Authorization": "sex"}).json()["data"]
+	print(dankchristian)
 	listing = []
 
 	while count < 50:
