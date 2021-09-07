@@ -149,7 +149,7 @@ class Post(object):
         for key in my_dict:
             setattr(self, key, my_dict[key])
 
-@cache.memoize(timeout=3600)
+#@cache.memoize(timeout=3600)
 def postcache():
 	count = 0
 	drama = requests.get("https://rdrama.net/", headers={"Authorization": "sex"}).json()["data"]
@@ -158,11 +158,10 @@ def postcache():
 	gigachad = requests.get("https://gigachadlife.com/", headers={"Authorization": "sex"}).json()["data"]
 	weebzone = requests.get("https://weebzone.xyz/", headers={"Authorization": "sex"}).json()["data"]
 	marseytech = requests.get("https://marsey.tech/", headers={"Authorization": "sex"}).json()["data"]
-	dankchristian = requests.get("https://dankchristian.com/", headers={"Authorization": "sex"}).json()["data"]
 	listing = []
 
 	while count < 50:
-		for site in [drama,vidya,pcm,gigachad,weebzone,marseytech,dankchristian]:
+		for site in [drama,vidya,pcm,gigachad,weebzone,marseytech]:
 			try: post = site[count]
 			except: continue
 			post = Post(post)
@@ -172,14 +171,9 @@ def postcache():
 			elif site == gigachad: post.site = "gigachadlife.com"
 			elif site == weebzone: post.site = "weebzone.xyz"
 			elif site == marseytech: post.site = "marsey.tech"
-			elif site == dankchristian:
-				post.site = "dankchristian.com"
-				post.downvotes = 0
 			elif site == vidya:
 				post.site = "vidya.cafe"
 				post.downvotes = 0
-
-			if not hasattr(post, "upvotes"): post.upvotes = 1
 			listing.append(post)
 		count += 1
 
