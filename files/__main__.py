@@ -158,7 +158,7 @@ def postcache():
 	gigachad = requests.get("https://gigachadlife.com/", headers={"Authorization": "sex"}).json()["data"]
 	weebzone = requests.get("https://weebzone.xyz/", headers={"Authorization": "sex"}).json()["data"]
 	marseytech = requests.get("https://marsey.tech/", headers={"Authorization": "sex"}).json()["data"]
-
+	dankchristian = requests.get("https://dankchristian.com/", headers={"Authorization": "sex"}).json()["data"]
 	listing = []
 
 	while count < 50:
@@ -172,6 +172,7 @@ def postcache():
 			elif site == gigachad: post.site = "gigachadlife.com"
 			elif site == weebzone: post.site = "weebzone.xyz"
 			elif site == marseytech: post.site = "marsey.tech"
+			elif site == dankchristian: post.site = "dankchristian.com"
 			elif site == vidya:
 				post.site = "vidya.cafe"
 				post.downvotes = 0
