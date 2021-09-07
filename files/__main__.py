@@ -149,7 +149,7 @@ class Post(object):
         for key in my_dict:
             setattr(self, key, my_dict[key])
 
-#@cache.memoize(timeout=3600)
+@cache.memoize(timeout=3600)
 def postcache():
 	count = 0
 	drama = requests.get("https://rdrama.net/", headers={"Authorization": "sex"}).json()["data"]
@@ -159,15 +159,14 @@ def postcache():
 	weebzone = requests.get("https://weebzone.xyz/", headers={"Authorization": "sex"}).json()["data"]
 	marseytech = requests.get("https://marsey.tech/", headers={"Authorization": "sex"}).json()["data"]
 	dankchristian = requests.get("https://dankchristian.com/", headers={"Authorization": "sex"}).json()["data"]
-	print(dankchristian)
 	listing = []
 
 	while count < 50:
-		for site in [drama,vidya,pcm,gigachad,weebzone,marseytech]:
+		for site in [drama,vidya,pcm,gigachad,weebzone,marseytech,dankchristian]:
 			try: post = site[count]
 			except: continue
 			post = Post(post)
-			if post.url and (post.url.lower().endswith('.jpg') or post.url.lower().endswith('.png') or post.url.lower().endswith('.gif') or post.url.lower().endswith('.jpeg') or post.url.lower().endswith('?maxwidth=9999')): post.is_image = True
+			if hasattr(post, "url") and post.url and (post.url.lower().endswith('.jpg') or post.url.lower().endswith('.png') or post.url.lower().endswith('.gif') or post.url.lower().endswith('.jpeg') or post.url.lower().endswith('?maxwidth=9999')): post.is_image = True
 			if site == drama: post.site = "rdrama.net"
 			elif site == pcm: post.site = "pcmemes.net"
 			elif site == gigachad: post.site = "gigachadlife.com"
