@@ -175,11 +175,11 @@ def postcache():
 			elif site == dankchristian:
 				post.site = "dankchristian.com"
 				post.downvotes = 0
+				if not hasattr(post, "upvotes"): post.upvotes = 1
 			elif site == vidya:
 				post.site = "vidya.cafe"
 				post.downvotes = 0
 
-			if not hasattr(post, "upvotes"): post.upvotes = 1
 			listing.append(post)
 		count += 1
 
