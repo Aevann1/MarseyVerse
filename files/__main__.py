@@ -179,7 +179,7 @@ def postcache():
 				post.site = "vidya.cafe"
 				post.downvotes = 0
 
-			if not hasattr(post, "upvotes"): continue
+			if not hasattr(post, "upvotes") or not hasattr(post, "downvotes"): continue
 
 			listing.append(post)
 		count += 1
