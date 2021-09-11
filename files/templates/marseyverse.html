@@ -74,10 +74,11 @@
 							{% endif %}
 							<a href="https://{{p.site}}{{p.author.url}}"style="color: #{{p.author.namecolor}};  font-weight: bold;" class="user-name"><img loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"/><span {% if p.author.patron %}class="patron" style="background-color:#{{p.author.namecolor}};"{% endif %}>{{p.author.username}}</span></a>{% if p.author.customtitle %}<bdi  style="color: #{{p.author.titlecolor}}">&nbsp;&nbsp;{% if p.author.quadrant %}<img loading="lazy" height="20" src="/assets/images/PCM/quadrants/{{p.author.quadrant}}.gif">{% endif %}{{p.author.customtitle | safe}}</bdi>{% endif %}
 							&nbsp;
+							{{p.site}}
+							&nbsp;
 							({% if p.url %}{{p.domain}}{% else %}text post{% endif %})
 							
 							{% if p.edited_utc %}&nbsp;&nbsp;Edited <span data-toggle="tooltip" data-placement="bottom" id="edited_timestamp-{{p.id}}" title="">{{p.edited_string}}</span>{% endif %}
-							&nbsp;&nbsp;{{p.site}}
 						</div>
 			
 						<h5 class="card-title post-title text-left w-lg-75 mb-0 pb-0 pb-md-1"><a target="_blank" href="https://{{p.site}}/post/{{p.id}}" class="stretched-link">
@@ -148,17 +149,17 @@
 			</div>
 			
 			{% if p.body %}
-			<div class="d-none card rounded border pb-0 pt-3 my-2" id="post-text-{{p.id}}">
-				{{p.body | safe}}
-			</div>
+				<div class="d-none card rounded border pb-0 pt-3 my-2" id="post-text-{{p.id}}">
+					{{p.body | safe}}
+				</div>
 			{% endif %}
 						
-			{% if p.is_image and (not v or v.cardview) %}
-			<div style="text-align: center" class="mt-4">
-				<a target="_blank" rel="nofollow noopener noreferrer" href="{{p.url}}">
-					<img loading="lazy" src="{{p.url}}" class="img-fluid" style="max-height:500px;" alt="Unable to load image">
-				</a>
-			</div>
+			{% if p.is_image and not p.over_18 and (not v or v.cardview) %}
+				<div style="text-align: center" class="mt-4">
+					<a target="_blank" rel="nofollow noopener noreferrer" href="{{p.url}}">
+						<img loading="lazy" src="{{p.url}}" class="img-fluid" style="max-height:500px;" alt="Unable to load image">
+					</a>
+				</div>
 			{% endif %}
 			
 			{% endfor %}
