@@ -180,7 +180,7 @@ def postcache():
 				post.downvotes = 0
 
 			if not hasattr(post, "upvotes") or not hasattr(post, "downvotes"): continue
-
+			if post.age > 86400: continue
 			listing.append(post)
 		count += 1
 
