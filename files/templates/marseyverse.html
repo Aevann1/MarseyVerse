@@ -1,171 +1,1289 @@
-{% extends "default.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!-- Bootstrap core JavaScript -->
+	<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	<script src="/assets/js/general10.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
 
-{% block content %}
+	<script>
+		var clipboard = new ClipboardJS('.copy-link');
+		clipboard.on('success', function(e) {
 
-<div class="row no-gutters {% if listing %}mt-md-3{% elif not listing %}my-md-3{% endif %}">
+			jQuery(function($) {
+				$('#toast-success').toast('show');
+			})
+			console.log(e);
+		});
+		clipboard.on('error', function(e) {
 
-	<div class="col-12">
+			jQuery(function($) {
+				$('#toast-error').toast('show');
+			})
+			console.log(e);
+		});
 
-		<div class="posts" id="posts">
+		// comment collapse
 
-			{% for p in listing %}
+		// Toggle comment collapse
+
+		function collapse_comment(comment_id) {
+
+			var comment = "comment-" + comment_id;
+
+			document.getElementById(comment).classList.toggle("collapsed");
+
+		};
+
+		//Commenting form
+
+		// Expand comment box on focus, hide otherwise
+
+		$('.comment-box').focus(function (event) {
+			event.preventDefault();
+
+			$(this).parent().parent().addClass("collapsed");
+
+		});
+
+		// Comment edit form
+
+		toggleEdit=function(id){
+			comment=document.getElementById("comment-text-"+id);
+			form=document.getElementById("comment-edit-"+id);
+			box=document.getElementById('edit-box-comment-'+id);
+			actions = document.getElementById('comment-' + id +'-actions');
+
+			comment.classList.toggle("d-none");
+			form.classList.toggle("d-none");
+			actions.classList.toggle("d-none");
+			autoExpand(box);
+		};
+
+		// Post edit form
+
+		togglePostEdit=function(id){
+
+			body=document.getElementById("post-body");
+			title=document.getElementById("post-title");
+			form=document.getElementById("edit-post-body-"+id);
+			box=document.getElementById("post-edit-box-"+id);
+			box2=document.getElementById("post-edit-box2-"+id);
+
+			body.classList.toggle("d-none");
+			title.classList.toggle("d-none");
+			form.classList.toggle("d-none");
+			autoExpand(box);
+			autoExpand(box2);
+		};
+
+		//comment modding
+		function removeComment(post_id) {
+			url="/ban_comment/"+post_id
+
+			callback=function(){
+				document.getElementById("comment-"+post_id+"-only").classList.add("banned");
+
+				button=document.getElementById("moderate-"+post_id);
+				button.onclick=function(){approveComment(post_id)};
+				button.innerHTML='<i class="fas fa-clipboard-check"></i>Approve'
+			}
+			post(url, callback, "Comment has been removed.")
+		};
+
+		function approveComment(post_id) {
+			url="/unban_comment/"+post_id
+
+			callback=function(){
+				document.getElementById("comment-"+post_id+"-only").classList.remove("banned");
+
+				button=document.getElementById("moderate-"+post_id);
+				button.onclick=function(){removeComment(post_id)};
+				button.innerHTML='<i class="fas fa-trash-alt"></i>Remove'
+			}
+
+			post(url, callback, "Comment has been approved.")
+		}
+
+		admin_comment=function(cid){
+
+
+			var xhr = new XMLHttpRequest();
+			xhr.open("post", "/distinguish_comment/"+cid);
+
+			var form = new FormData();
+
+			form.append('formkey', formkey());
+
+			xhr.withCredentials=true;
+			xhr.onload=function(){
+				if (xhr.status==200) {
+					comment=document.getElementById('comment-'+cid+'-only');
+					comment.innerHTML=JSON.parse(xhr.response)["html"];
+				}
+				else {
+					var commentError = document.getElementById("comment-error-text");
+					$('#toast-comment-success').toast('dispose');
+					$('#toast-comment-error').toast('dispose');
+					$('#toast-comment-error').toast('show');
+					commentError.textContent = JSON.parse(xhr.response)["error"];
+				}
+			}
+			xhr.send(form)
+		}
+
+		//Autoexpand textedit comments
+
+		function autoExpand (field) {
+
+			//get current scroll position
+			xpos=window.scrollX;
+			ypos=window.scrollY;
+
+			// Reset field height
+			field.style.height = 'inherit';
+
+			// Get the computed styles for the element
+			var computed = window.getComputedStyle(field);
+
+			// Calculate the height
+			var height = parseInt(computed.getPropertyValue('border-top-width'), 10)
+			+ parseInt(computed.getPropertyValue('padding-top'), 10)
+			+ field.scrollHeight
+			+ parseInt(computed.getPropertyValue('padding-bottom'), 10)
+			+ parseInt(computed.getPropertyValue('border-bottom-width'), 10)
+			+ 32;
+
+			field.style.height = height + 'px';
+
+			//keep window position from changing
+			window.scrollTo(xpos,ypos);
+
+		};
+
+		document.addEventListener('input', function (event) {
+			if (event.target.tagName.toLowerCase() !== 'textarea') return;
+			autoExpand(event.target);
+		}, false);
+
+		// Delete Post
+
+		function delete_postModal(id) {
+
+			// Passed data for modal
+
+			document.getElementById("deletePostButton-mobile").addEventListener("click", delete_post);
+
+			document.getElementById("deletePostButton").addEventListener("click", delete_post);
+
+			function delete_post(){	
+
+				this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Deleting post';	
+				this.disabled = true; 
+				post('/delete_post/' + id,
+					callback = function() {
+
+						location.reload();
+					}
+					)
+			}
+
+		};
+
+		// Delete Comment
+
+		function delete_commentModal(id) {
+
+			// Passed data for modal
+
+			document.getElementById("deleteCommentButton").onclick = function() {	
+
+				this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Deleting comment';	
+				this.disabled = true; 
+				post('/delete/comment/' + id,
+					callback = function() {
+
+						location.reload();
+					}
+					)
+			}
+
+		};
+
+		//flagging
+		// Flag Comment
+
+		report_commentModal = function(id, author) {
+
+			document.getElementById("comment-author").textContent = author;
+
+			//offtopic.disabled=true;
+
+			document.getElementById("reportCommentButton").onclick = function() {
+
+				this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Reporting comment';
+				this.disabled = true;
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", '/flag/comment/'+id, true);
+				var form = new FormData()
+				form.append("formkey", formkey());
+				form.append("reason", document.getElementById("reason-comment").value);
+
+				xhr.withCredentials=true;
+
+				xhr.onload=function() {
+					document.getElementById("reportCommentFormBefore").classList.add('d-none');
+					document.getElementById("reportCommentFormAfter").classList.remove('d-none');
+				};
+
+				xhr.onerror=function(){alert(errortext)};
+				xhr.send(form);
+			}
+
+		};
+
+		$('#reportCommentModal').on('hidden.bs.modal', function () {
+
+			var button = document.getElementById("reportCommentButton");
+
+			var beforeModal = document.getElementById("reportCommentFormBefore");
+			var afterModal = document.getElementById("reportCommentFormAfter");
+
+			button.innerHTML='Report comment';
+			button.disabled= false;
+			afterModal.classList.add('d-none');
+
+			if ( beforeModal.classList.contains('d-none') ) {
+				beforeModal.classList.remove('d-none');
+			}
+
+		});
+
+
+		// Flag Submission
+
+		report_postModal = function(id, author) {
+
+			document.getElementById("post-author").textContent = author;
+
+			submitbutton=document.getElementById("reportPostButton");
+
+			submitbutton.onclick = function() {
+
+				this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Reporting post';
+				this.disabled = true;
+
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", '/flag/post/'+id, true);
+				var form = new FormData()
+				form.append("formkey", formkey());
+				form.append("reason", document.getElementById("reason").value);
+
+				xhr.withCredentials=true;
+
+				xhr.onload=function() {
+					document.getElementById("reportPostFormBefore").classList.add('d-none');
+					document.getElementById("reportPostFormAfter").classList.remove('d-none');
+				};
+
+				xhr.onerror=function(){alert(errortext)};
+				xhr.send(form);
+
+			}
+		};
+
+		$('#reportPostModal').on('hidden.bs.modal', function () {
+
+			var button = document.getElementById("reportPostButton");
+
+			var beforeModal = document.getElementById("reportPostFormBefore");
+			var afterModal = document.getElementById("reportPostFormAfter");
+
+			button.innerHTML='Report post';
+			button.disabled= false;
+
+			afterModal.classList.add('d-none');
+
+			if ( beforeModal.classList.contains('d-none') ) {
+				beforeModal.classList.remove('d-none');
+			}
+
+		});
+	
+
+
+
+		$('.expandable-image').click( function(event) {
+
+			if (event.which != 1) {
+				return
+			}
+			event.preventDefault();
+
+			var url= $(this).data('url');
+
+			expandDesktopImage(url,url);
+		})
+	
+		$('.text-expand').click(function(event){
+		if (event.which != 1) {
+			return
+		};
+		id=$(this).data('id');
+
+
+		$('#post-text-'+id).toggleClass('d-none');
+		$('.text-expand-icon-'+id).toggleClass('fa-expand-alt');
+		$('.text-expand-icon-'+id).toggleClass('fa-compress-alt');
+
+		})
+
+		// Text Formatting
+
+		// Bold Text
+
+		makeBold = function (form) {
+			var text = document.getElementById(form);
+			var startIndex = text.selectionStart,
+			endIndex = text.selectionEnd;
+			var selectedText = text.value.substring(startIndex, endIndex);
+
+			var format = '**'
+
+			if (selectedText.includes('**')) {
+				text.value = selectedText.replace(/\*/g, '');
+				
+			}
+			else if (selectedText.length == 0) {
+				text.value = text.value.substring(0, startIndex) + selectedText + text.value.substring(endIndex);
+			}
+			else {
+				text.value = text.value.substring(0, startIndex) + format + selectedText + format + text.value.substring(endIndex);
+			}
+		}
+
+		// Italicize Comment Text
+
+		makeItalics = function (form) {
+			var text = document.getElementById(form);
+			var startIndex = text.selectionStart,
+			endIndex = text.selectionEnd;
+			var selectedText = text.value.substring(startIndex, endIndex);
+
+			var format = '*'
+
+			if (selectedText.includes('*')) {
+				text.value = selectedText.replace(/\*/g, '');
+				
+			}
+			else if (selectedText.length == 0) {
+				text.value = text.value.substring(0, startIndex) + selectedText + text.value.substring(endIndex);
+			}
+			else {
+				text.value = text.value.substring(0, startIndex) + format + selectedText + format + text.value.substring(endIndex);
+			}
+		}
+
+		// Quote Comment Text
+
+		makeQuote = function (form) {
+			var text = document.getElementById(form);
+			var startIndex = text.selectionStart,
+			endIndex = text.selectionEnd;
+			var selectedText = text.value.substring(startIndex, endIndex);
+
+			var format = '>'
+
+			if (selectedText.includes('>')) {
+				text.value = text.value.substring(0, startIndex) + selectedText.replace(/\>/g, '') + text.value.substring(endIndex);
+				
+			}
+			else if (selectedText.length == 0) {
+				text.value = text.value.substring(0, startIndex) + selectedText + text.value.substring(endIndex);
+			}
+			else {
+				text.value = text.value.substring(0, startIndex) + format + selectedText + text.value.substring(endIndex);
+			}
+		}
+
+		// award modal
+
+		function awardModal(link) {
+			var target = document.getElementById("awardTarget");
+
+			target.value = link;
+		}
+
+		// Expand Images on Desktop
+
+		function expandDesktopImage(image, link) {
+
+		// Link text
+
+			var linkText = document.getElementById("desktop-expanded-image-link");
+			var imgLink = document.getElementById("desktop-expanded-image-wrap-link");
+
+			var inlineImage = document.getElementById("desktop-expanded-image");
+
+			inlineImage.src = image.replace("100w.gif", "giphy.gif");
+			linkText.href = image;
+			imgLink.href=image;
+
+			linkText.textContent = 'View original';
+			};
+
+		post_comment=function(fullname){
+
+
+			var form = new FormData();
+
+			form.append('formkey', formkey());
+			form.append('parent_fullname', fullname);
+			form.append('submission', document.getElementById('reply-form-submission-'+fullname).value);
+			form.append('body', document.getElementById('reply-form-body-'+fullname).value);
+			form.append('file', document.getElementById('file-upload-reply-'+fullname).files[0]);
+			var xhr = new XMLHttpRequest();
+			xhr.open("post", "/comment");
+			xhr.withCredentials=true;
+			xhr.onload=function(){
+				if (xhr.status==200) {
+					commentForm=document.getElementById('comment-form-space-'+fullname);
+					commentForm.innerHTML=JSON.parse(xhr.response)["html"];
+					$('#toast-comment-success').toast('dispose');
+					$('#toast-comment-error').toast('dispose');
+					$('#toast-comment-success').toast('show');
+				}
+				else {
+					var commentError = document.getElementById("comment-error-text");
+					$('#toast-comment-success').toast('dispose');
+					$('#toast-comment-error').toast('dispose');
+					$('#toast-comment-error').toast('show');
+					commentError.textContent = JSON.parse(xhr.response)["error"];
+				}
+			}
+			xhr.send(form)
+
+			document.getElementById('save-reply-to-'+fullname).classList.add('disabled');
+
+		}
+
+		post_reply=function(id){
+
+			var form = new FormData();
+
+			form.append('formkey', formkey());
+			form.append('parent_id', id);
+			form.append('body', document.getElementById('reply-form-body-'+id).value);
+			var xhr = new XMLHttpRequest();
+			xhr.open("post", "/reply");
+			xhr.withCredentials=true;
+			xhr.onload=function(){
+				if (xhr.status==200) {
+					commentForm=document.getElementById('comment-form-space-'+id);
+					commentForm.innerHTML=JSON.parse(xhr.response)["html"];
+					$('#toast-comment-success').toast('dispose');
+					$('#toast-comment-error').toast('dispose');
+					$('#toast-comment-success').toast('show');
+				}
+				else {
+					var commentError = document.getElementById("comment-error-text");
+					$('#toast-comment-success').toast('dispose');
+					$('#toast-comment-error').toast('dispose');
+					$('#toast-comment-error').toast('show');
+					commentError.textContent = JSON.parse(xhr.response)["error"];
+				}
+			}
+			xhr.send(form)
+
+			document.getElementById('save-reply-to-'+id).classList.add('disabled');
+
+			}
+
+		herald_comment=function(cid){
+
+
+			var xhr = new XMLHttpRequest();
+			xhr.open("post", "/admin/distinguish_comment/"+cid);
+
+			var form = new FormData();
+
+			form.append('formkey', formkey());
+
+			xhr.withCredentials=true;
+			xhr.onload=function(){
+				if (xhr.status==200) {
+					comment=document.getElementById('comment-'+cid+'-only');
+					comment.innerHTML=JSON.parse(xhr.response)["html"];
+				}
+				else {
+					var commentError = document.getElementById("comment-error-text");
+					$('#toast-comment-success').toast('dispose');
+					$('#toast-comment-error').toast('dispose');
+					$('#toast-comment-error').toast('show');
+					commentError.textContent = JSON.parse(xhr.response)["error"];
+				}
+			}
+			xhr.send(form)
+
+		}
+
+		comment_edit=function(id){
+
+			var commentError = document.getElementById("comment-error-text");
+
+			var form = new FormData();
+
+			form.append('formkey', formkey());
+			form.append('body', document.getElementById('comment-edit-body-'+id).value);
+			form.append('file', document.getElementById('file-edit-reply-'+id).files[0]);
+
+			var xhr = new XMLHttpRequest();
+			xhr.open("post", "/edit_comment/"+id);
+			xhr.withCredentials=true;
+			xhr.onload=function(){
+				if (xhr.status==200) {
+					commentForm=document.getElementById('comment-text-'+id);
+					commentForm.innerHTML=JSON.parse(xhr.response)["html"];
+					document.getElementById('cancel-edit-'+id).click()
+					$('#toast-comment-success').toast('dispose');
+					$('#toast-comment-error').toast('dispose');
+					$('#toast-comment-success').toast('show');
+				}
+				else {
+					$('#toast-comment-success').toast('dispose');
+					$('#toast-comment-error').toast('dispose');
+					$('#toast-comment-error').toast('show');
+					commentError.textContent = JSON.parse(xhr.response)["error"];
+				}
+			}
+			xhr.send(form)
+
+		}
+
+	
+		block_user=function() {
+
+			var exileForm = document.getElementById("exile-form");
+
+			var exileError = document.getElementById("toast-error-message");
+
+			var usernameField = document.getElementById("exile-username");
+
+			var isValidUsername = usernameField.checkValidity();
+
+			username = usernameField.value;
+
+			if (isValidUsername) {
+
+				var xhr = new XMLHttpRequest();
+				xhr.open("post", "/settings/block");
+				xhr.withCredentials=true;
+				f=new FormData();
+				f.append("username", username);
+				f.append("formkey", formkey());
+				xhr.onload=function(){
+					if (xhr.status<300) {
+						window.location.reload(true);
+					}
+					else {
+						$('#toast-exile-error').toast('dispose');
+						$('#toast-exile-error').toast('show');
+						exileError.textContent = JSON.parse(xhr.response)["error"];
+					}
+				}
+				xhr.send(f)
+			}
+
+		}
+
+		//mobile prompt
+		if (("standalone" in window.navigator) &&			// Check if "standalone" property exists
+				window.navigator.standalone){							// Test if using standalone navigator
+
+				// Web page is loaded via app mode (full-screen mode)
+				// (window.navigator.standalone is TRUE if user accesses website via App Mode)
+
+		} else {
+			if (window.innerWidth <= 737){
+				try {
+					$('#mobile-prompt').tooltip('show')
+					$('.tooltip')[0].addEventListener(
+						'click', 
+						function(event){
+							$('#mobile-prompt').tooltip('hide')
+							var xhr = new XMLHttpRequest();
+							xhr.withCredentials=true;
+							xhr.open("POST", '/dismiss_mobile_tip', true);
+							xhr.send();
+						}
+					)
+				} catch (error) {
+					console.error(error);
+				}
+			}
+		}
+	
+	// Voting
+
+		function post_vote(url, callback) {
+		var xhr = new XMLHttpRequest();
+		xhr.open("POST", url, true);
+		var form = new FormData()
+		form.append("formkey", formkey());
+		xhr.withCredentials=true;
+
+		xhr.onload = function() {
+			if (xhr.status==204) {}
+				else if (xhr.status >= 200 && xhr.status < 300) {
+					$('#toast-post-success').toast('dispose');
+					$('#toast-post-success').toast('show');
+					document.getElementById('toast-post-success-text').innerText = JSON.parse(xhr.response)["message"];
+					callback(xhr)
+					return true
+
+				} else if (xhr.status >= 300 && xhr.status < 400) {
+					window.location.href = JSON.parse(xhr.response)["redirect"]
+				} else {
+					data=JSON.parse(xhr.response);
 					
-			{% set ups=p.upvotes %}
-			{% set downs=p.downvotes %}
-			{% set score=ups-downs %}
+					$('#toast-post-error').toast('dispose');
+					$('#toast-post-error').toast('show');
+					document.getElementById('toast-post-error-text').innerText = data["error"];
+					return false
+					
+				}
+			};
+
+			xhr.send(form);
+
+		}
+
+		var upvote = function(event) {
+
+			var type = event.target.dataset.contentType;
+			var id = event.target.dataset.idUp;
+
+			var downvoteButton = document.getElementsByClassName(type + '-' + id + '-down');
+			var upvoteButton = document.getElementsByClassName(type + '-' + id + '-up');
+			var scoreText = document.getElementsByClassName(type + '-score-' + id);
+
+			for (var j = 0; j < upvoteButton.length && j < downvoteButton.length && j < scoreText.length; j++) {
+
+				var thisUpvoteButton = upvoteButton[j];
+				var thisDownvoteButton = downvoteButton[j];
+				var thisScoreText = scoreText[j];
+				var thisScore = Number(thisScoreText.textContent);
+
+				if (thisUpvoteButton.classList.contains('active')) {
+					thisUpvoteButton.classList.remove('active')
+					thisScoreText.textContent = thisScore - 1
+					voteDirection = "0"
+				} else if (thisDownvoteButton.classList.contains('active')) {
+					thisUpvoteButton.classList.add('active')
+					thisDownvoteButton.classList.remove('active')
+					thisScoreText.textContent = thisScore + 2
+					voteDirection = "1"
+				} else {
+					thisUpvoteButton.classList.add('active')
+					thisScoreText.textContent = thisScore + 1
+					voteDirection = "1"
+				}
+
+				if (thisUpvoteButton.classList.contains('active')) {
+					thisScoreText.classList.add('score-up')
+					thisScoreText.classList.remove('score-down')
+					thisScoreText.classList.remove('score')
+				} else if (thisDownvoteButton.classList.contains('active')) {
+					thisScoreText.classList.add('score-down')
+					thisScoreText.classList.remove('score-up')
+					thisScoreText.classList.remove('score')
+				} else {
+					thisScoreText.classList.add('score')
+					thisScoreText.classList.remove('score-up')
+					thisScoreText.classList.remove('score-down')
+				}
+			}
+
+			post_vote("/vote/" + type + "/" + id + "/" + voteDirection);
 			
-			{% set voted=-2 %}
+		}
+
+		var downvote = function(event) {
+
+			var type = event.target.dataset.contentType;
+			var id = event.target.dataset.idDown;
+
+			var downvoteButton = document.getElementsByClassName(type + '-' + id + '-down');
+			var upvoteButton = document.getElementsByClassName(type + '-' + id + '-up');
+			var scoreText = document.getElementsByClassName(type + '-score-' + id);
+
+			for (var j = 0; j < upvoteButton.length && j < downvoteButton.length && j < scoreText.length; j++) {
+
+				var thisUpvoteButton = upvoteButton[j];
+				var thisDownvoteButton = downvoteButton[j];
+				var thisScoreText = scoreText[j];
+				var thisScore = Number(thisScoreText.textContent);
+
+				if (thisDownvoteButton.classList.contains('active')) {
+					thisDownvoteButton.classList.remove('active')
+					thisScoreText.textContent = thisScore + 1
+					voteDirection = "0"
+				} else if (thisUpvoteButton.classList.contains('active')) {
+					thisDownvoteButton.classList.add('active')
+					thisUpvoteButton.classList.remove('active')
+					thisScoreText.textContent = thisScore - 2
+					voteDirection = "-1"
+				} else {
+					thisDownvoteButton.classList.add('active')
+					thisScoreText.textContent = thisScore - 1
+					voteDirection = "-1"
+				}
+
+				if (thisUpvoteButton.classList.contains('active')) {
+					thisScoreText.classList.add('score-up')
+					thisScoreText.classList.remove('score-down')
+					thisScoreText.classList.remove('score')
+				} else if (thisDownvoteButton.classList.contains('active')) {
+					thisScoreText.classList.add('score-down')
+					thisScoreText.classList.remove('score-up')
+					thisScoreText.classList.remove('score')
+				} else {
+					thisScoreText.classList.add('score')
+					thisScoreText.classList.remove('score-up')
+					thisScoreText.classList.remove('score-down')
+				}
+			}
+
+			post_vote("/vote/" + type + "/" + id + "/" + voteDirection);
 			
+		}
+
+
+		var register_votes = function() {
+			var upvoteButtons = document.getElementsByClassName('upvote-button')
+
+			var downvoteButtons = document.getElementsByClassName('downvote-button')
+
+			var voteDirection = 0
+
+			for (var i = 0; i < upvoteButtons.length; i++) {
+				upvoteButtons[i].addEventListener('click', upvote, false);
+				upvoteButtons[i].addEventListener('keydown', function(event) {
+					if (event.keyCode === 13) {
+						upvote(event)
+					}
+				}, false)
+			};
+
+			for (var i = 0; i < downvoteButtons.length; i++) {
+				downvoteButtons[i].addEventListener('click', downvote, false);
+				downvoteButtons[i].addEventListener('keydown', function(event) {
+					if (event.keyCode === 13) {
+						downvote(event)
+					}
+				}, false)
+			};
+		}
+
+		register_votes()
+	</script>
+	
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<meta name="thumbnail" content="/assets/images/preview.gif">
+
+	<link rel="icon" type="image/png" href="/assets/images/icon.gif">
+	
+	<title>{{'SITE_NAME' | app_config}}</title>
+
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="{{'SITE_NAME' | app_config}}" />
+	<meta property="og:site_name" content="{{request.host}}" />
+	<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/images/preview.gif" />
+	<meta property="og:url" content="{{request.path | full_link}}">
+	<meta property="og:author" name="author" content="@{{request.host_url}}" />
+	<meta property="og:site_name" content="{{request.host}}" />
+
+	<meta name="twitter:card" content="summary_large_image"/>
+	<meta name="twitter:site" content="@{{request.host_url}}">
+	<meta name="twitter:title" content="{{'SITE_NAME' | app_config}}" />
+	<meta name="twitter:creator" content="@{{request.host_url}}">
+	<meta name="twitter:image" content="/assets/images/preview.gif" />
+	<meta name="twitter:url" content="{{request.path | full_link}}" />
+
+	<!-- iOS webapp -->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-touch-fullscreen" content="yes">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/icon.gif">
+	<!---<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon.gif">
+		<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/icon.gif">--->
+		<link rel="manifest" href="/assets/manifest.json">
+		<link rel="mask-icon" href="/assets/images/icon.gif" color="#{{'DEFAULT_COLOR' | app_config}}">
+		<link rel="shortcut icon" href="/assets/images/icon.gif">
+		<meta name="apple-mobile-web-app-title" content="{{'SITE_NAME' | app_config}}">
+		<meta name="application-name" content="{{'SITE_NAME' | app_config}}">
+		<meta name="msapplication-TileColor" content="#{{'DEFAULT_COLOR' | app_config}}">
+		<meta name="msapplication-config" content="/assets/images/browserconfig.xml">
+		<meta name="theme-color" content="#{{'DEFAULT_COLOR' | app_config}}">
+
+
+
+		<link
+		rel="apple-touch-startup-image"
+		sizes="320x480"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="640x960"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-icon"
+		sizes="640x1136"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-icon"
+		sizes="750x1334"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="768x1004"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="768x1024"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="828x1792"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="1024x748"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="1024x768"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="1125x2436"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="1242x2208"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="1242x2688"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="1334x750"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="1536x2008"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="1536x2048"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="1668x2224"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="1792x828"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="2048x1496"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="2048x1536"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="2048x2732"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="2208x1242"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="2224x1668"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="2436x1125"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="2668x1242"
+		href="/assets/images/icon.gif"
+		/>
+		<link
+		rel="apple-touch-startup-image"
+		sizes="2737x2048"
+		href="/assets/images/icon.gif"
+		/>
+
+		<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
+		<!-- Font Awesome -->
+		<link href="/assets/style/fa.css" rel="stylesheet"> <!--load all styles -->
+
+ </head>
+
+ <body id="{% if request.path != '/comments' %}frontpage{% endif %}" style="overflow-x: hidden;">
+
+
+<!-- Navigation -->
+
+<nav class="navbar navbar-expand-md navbar-light shadow shadow-md fixed-top" id="navbar">
+	<div class="container-fluid" style="padding:0;">
+		{% if v and v.admin_level > 0 %}
+		<a class="mobile-nav-icon d-block d-md-none" href="/admin"><i class="fas fa-crown align-middle text-gray-500 black"></i></a>
+		{% endif %}
+		{% if v %}
+		<a class="mobile-nav-icon d-block d-md-none" href="/submit"><i class="fas fa-feather-alt align-middle text-gray-500 black"></i></a>
+		{% else %}
+		<a class="mobile-nav-icon d-block d-md-none" href="/login"><i class="fas fa-feather-alt align-middle text-gray-500 black"></i></a>
+		{% endif %}
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+		aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon {% if v and v.notifications_count %}position-relative{% endif %}"><i class="fal fa-bars text-gray-500 black"></i>
+			{% if v and v.notifications_count %}
+				<span class="badge-count font-weight-bolder" style="right: -6px; font-size:18px;">{{v.notifications_count}}</span>
+			{% endif %}
+		</span>
+	</button>
+	<div class="collapse navbar-collapse" id="navbarResponsive">
+		<ul class="navbar-nav ml-auto d-none d-md-flex">
+
+			{% if v and v.admin_level==6 %}
+			<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
+				<a class="nav-link" href="/admin/" data-toggle="tooltip" data-placement="bottom" title="Admin tools"><i class="fas fa-crown{% if v.has_report_queue %} text-success{% endif %}"></i></a>
+			</li>
+			{% endif %}
+	</ul>
+
+</div>
+</div>
+</nav>
+
+<!-- Page Content -->
+
+<div class="container {% if request.path=='/' or '/post/' in request.path or '/comment/' in request.path %} transparent {% endif %}">
+	<div class="row justify-content-around" id="main-content-row">
+
+		<div class="col h-100{% if not '/message' in request.path %}custom-gutters{% endif %}" id="main-content-col">
+
+			<div class="row no-gutters {% if listing %}mt-md-3{% elif not listing %}my-md-3{% endif %}">
+
+				<div class="col-12">
 			
-			<div id="post-{{p.id}}" class="card{% if p.is_banned %} banned{% endif %}{% if p.deleted_utc > 0 %} deleted{% endif %}{% if p.stickied %} stickied{% endif %}{% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}{% if p.over_18 %} nsfw{% endif %}">
+					<div class="posts" id="posts">
 			
-				<div class="d-flex flex-row-reverse flex-md-row flex-nowrap justify-content-end">
-			
-					<!-- Voting on "medium" devices or larger, hidden on smaller devices -->
-					<div class="voting my-2 d-none d-md-block pr-2">						
-						<span id="post-{{p.id}}-score-none" class="score"{% if not p.is_banned %} data-toggle="tooltip" data-placement="right" data-original-title="+{{ups}} | -{{downs}}"{% endif %}>{{score}}</span>
-					</div>
-			
-					<div class="card-header bg-transparent border-0 d-flex flex-row flex-nowrap pl-2 pl-md-0 p-0 mr-md-2">
-			
-						<div style="z-index: 3;">
-							
-							{% if not p.url %}
-								<a target="_blank" href="https://{{p.site}}/post/{{p.id}}">
-									<img loading="lazy" src="{{p.thumb_url}}" class="post-img">
-								</a>
-							{% elif p.is_image %}
-								<a href="javascript:void(0)" class="expandable-image" data-toggle="modal" data-target="#expandImageModal" data-url="{{p.url}}">
-									<img loading="lazy" src="{{p.thumb_url}}" class="post-img">
-								</a>
-							{% else %}
-								<a {% if not v or v.newtabexternal %}target="_blank"{% endif %} rel="nofollow noopener noreferrer" href="{{p.url}}">
-									<img loading="lazy" src="{{p.thumb_url}}" class="post-img">
-								</a>
-							{% endif %}
-							
-						</div>
-			
-			
-					</div>
-			
-					<div class="card-block text-left x-scroll-parent my-md-auto w-100">
-			
-						<div class="post-meta text-left x-scroll mb-md-2">
-							{% if p.bannedfor and p.author.banned_by %}
-								<a href="javascript:void(0)"><i class="fad fa-gavel text-danger" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="User was banned for this post by @{{p.author.banned_by.username}}"></i></a>
-							{% endif %}
-			
-							{% if p.awards %}
-								{% for a in p.awards[:5] %}
-								<i class="{{a.class_list}} px-1" data-toggle="tooltip" data-placement="bottom" title="{{a.title}} Award given by @{{a.user.username}}"></i>
-								{% endfor %}
-							{% endif %}
-							{% if p.stickied %}<i class="fas fa-thumbtack text-admin fa-rotate--45" data-toggle="tooltip" data-placement="bottom" title="Pinned post"></i>{% endif %}
-							{% if p.distinguish_level %}<i class="fas fa-broom text-admin" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{'SITE_NAME' | app_config}} Admin, speaking officially"></i>{% endif %}
-							{% if p.is_pinned and request.path.startswith('/@') %}<i class="fas fa-thumbtack text-admin fa-rotate--45" data-toggle="tooltip" data-placement="bottom" title="Pinned to profile"></i>{% endif %}
-							{% if p.over_18 %}<span class="badge badge-danger text-small-extra mr-1">+18</span>{% endif %}
-							{% if p.is_bot %} <i class="fad fa-robot text-info" data-toggle="tooltip" data-placement="bottom"	data-original-title="Bot"></i>{% endif %}
-							{% if p.is_blocking %}<i class="fas fa-user-minus text-warning" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="You're blocking this user, but you can see this post because {{'it\'s an admin post' if p.distinguish_level else 'you\'re an admin'}}."></i>{% endif %}
-							{% if p.is_blocked %}<i class="fas fa-user-minus text-danger" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="This user is blocking you."></i>{% endif %}
-							{% if p.private %}<span class="badge border-warning border-1 text-small-extra">Draft</span>{% endif %}
-							{% if p.active_flags %}<a class="btn btn-primary" href="javascript:void(0)" style="padding:1px 5px; font-size:10px;" onclick="document.getElementById('flaggers-{{p.id}}').classList.toggle('d-none')">{{p.active_flags}} Reports</a>{% endif %}
-							{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:#1DA1F2" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{p.author.verified}}"></i>
-							{% endif %}
-							<a href="https://{{p.site}}{{p.author.url}}"style="color: #{{p.author.namecolor}};  font-weight: bold;" class="user-name"><img loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"/><span {% if p.author.patron %}class="patron" style="background-color:#{{p.author.namecolor}};"{% endif %}>{{p.author.username}}</span></a>{% if p.author.customtitle %}<bdi  style="color: #{{p.author.titlecolor}}">&nbsp;&nbsp;{% if p.author.quadrant %}<img loading="lazy" height="20" src="/assets/images/PCM/quadrants/{{p.author.quadrant}}.gif">{% endif %}{{p.author.customtitle | safe}}</bdi>{% endif %}
-							&nbsp;
-							{{p.site}}
-							&nbsp;
-							({% if p.url %}{{p.domain}}{% else %}text post{% endif %})
-							
-							{% if p.edited_utc %}&nbsp;&nbsp;Edited <span data-toggle="tooltip" data-placement="bottom" id="edited_timestamp-{{p.id}}" title="">{{p.edited_string}}</span>{% endif %}
-						</div>
-			
-						<h5 class="card-title post-title text-left w-lg-75 mb-0 pb-0 pb-md-1"><a target="_blank" href="https://{{p.site}}/post/{{p.id}}" class="stretched-link">
-							{{p.title | safe}}
-						</a></h5>
-			
-						{% if p.thumb_url %}
-						<div class="row post-img-lg mb-3">
-							<div class="col px-0">
-								<a target="_blank" href="https://{{p.site}}/post/{{p.id}}"><img loading="lazy" src="{{p.thumb_url}}" class="img-fluid" alt="post image"></a>
+						{% for p in listing %}
+								
+						{% set ups=p.upvotes %}
+						{% set downs=p.downvotes %}
+						{% set score=ups-downs %}
+						
+						{% set voted=-2 %}
+						
+						
+						<div id="post-{{p.id}}" class="card{% if p.is_banned %} banned{% endif %}{% if p.deleted_utc > 0 %} deleted{% endif %}{% if p.stickied %} stickied{% endif %}{% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}{% if p.over_18 %} nsfw{% endif %}">
+						
+							<div class="d-flex flex-row-reverse flex-md-row flex-nowrap justify-content-end">
+						
+								<!-- Voting on "medium" devices or larger, hidden on smaller devices -->
+								<div class="voting my-2 d-none d-md-block pr-2">						
+									<span id="post-{{p.id}}-score-none" class="score"{% if not p.is_banned %} data-toggle="tooltip" data-placement="right" data-original-title="+{{ups}} | -{{downs}}"{% endif %}>{{score}}</span>
+								</div>
+						
+								<div class="card-header bg-transparent border-0 d-flex flex-row flex-nowrap pl-2 pl-md-0 p-0 mr-md-2">
+						
+									<div style="z-index: 3;">
+										
+										{% if not p.url %}
+											<a target="_blank" href="https://{{p.site}}/post/{{p.id}}">
+												<img loading="lazy" src="{{p.thumb_url}}" class="post-img">
+											</a>
+										{% elif p.is_image %}
+											<a href="javascript:void(0)" class="expandable-image" data-toggle="modal" data-target="#expandImageModal" data-url="{{p.url}}">
+												<img loading="lazy" src="{{p.thumb_url}}" class="post-img">
+											</a>
+										{% else %}
+											<a {% if not v or v.newtabexternal %}target="_blank"{% endif %} rel="nofollow noopener noreferrer" href="{{p.url}}">
+												<img loading="lazy" src="{{p.thumb_url}}" class="post-img">
+											</a>
+										{% endif %}
+										
+									</div>
+						
+						
+								</div>
+						
+								<div class="card-block text-left x-scroll-parent my-md-auto w-100">
+						
+									<div class="post-meta text-left x-scroll mb-md-2">
+										{% if p.bannedfor and p.author.banned_by %}
+											<a href="javascript:void(0)"><i class="fad fa-gavel text-danger" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="User was banned for this post by @{{p.author.banned_by.username}}"></i></a>
+										{% endif %}
+						
+										{% if p.awards %}
+											{% for a in p.awards[:5] %}
+											<i class="{{a.class_list}} px-1" data-toggle="tooltip" data-placement="bottom" title="{{a.title}} Award given by @{{a.user.username}}"></i>
+											{% endfor %}
+										{% endif %}
+										{% if p.stickied %}<i class="fas fa-thumbtack text-admin fa-rotate--45" data-toggle="tooltip" data-placement="bottom" title="Pinned post"></i>{% endif %}
+										{% if p.distinguish_level %}<i class="fas fa-broom text-admin" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{'SITE_NAME' | app_config}} Admin, speaking officially"></i>{% endif %}
+										{% if p.is_pinned and request.path.startswith('/@') %}<i class="fas fa-thumbtack text-admin fa-rotate--45" data-toggle="tooltip" data-placement="bottom" title="Pinned to profile"></i>{% endif %}
+										{% if p.over_18 %}<span class="badge badge-danger text-small-extra mr-1">+18</span>{% endif %}
+										{% if p.is_bot %} <i class="fad fa-robot text-info" data-toggle="tooltip" data-placement="bottom"	data-original-title="Bot"></i>{% endif %}
+										{% if p.is_blocking %}<i class="fas fa-user-minus text-warning" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="You're blocking this user, but you can see this post because {{'it\'s an admin post' if p.distinguish_level else 'you\'re an admin'}}."></i>{% endif %}
+										{% if p.is_blocked %}<i class="fas fa-user-minus text-danger" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="This user is blocking you."></i>{% endif %}
+										{% if p.private %}<span class="badge border-warning border-1 text-small-extra">Draft</span>{% endif %}
+										{% if p.active_flags %}<a class="btn btn-primary" href="javascript:void(0)" style="padding:1px 5px; font-size:10px;" onclick="document.getElementById('flaggers-{{p.id}}').classList.toggle('d-none')">{{p.active_flags}} Reports</a>{% endif %}
+										{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:#1DA1F2" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{p.author.verified}}"></i>
+										{% endif %}
+										<a href="https://{{p.site}}{{p.author.url}}"style="color: #{{p.author.namecolor}};  font-weight: bold;" class="user-name"><img loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"/><span {% if p.author.patron %}class="patron" style="background-color:#{{p.author.namecolor}};"{% endif %}>{{p.author.username}}</span></a>{% if p.author.customtitle %}<bdi  style="color: #{{p.author.titlecolor}}">&nbsp;&nbsp;{% if p.author.quadrant %}<img loading="lazy" height="20" src="/assets/images/PCM/quadrants/{{p.author.quadrant}}.gif">{% endif %}{{p.author.customtitle | safe}}</bdi>{% endif %}
+										&nbsp;
+										{{p.site}}
+										&nbsp;
+										({% if p.url %}{{p.domain}}{% else %}text post{% endif %})
+										
+										{% if p.edited_utc %}&nbsp;&nbsp;Edited <span data-toggle="tooltip" data-placement="bottom" id="edited_timestamp-{{p.id}}" title="">{{p.edited_string}}</span>{% endif %}
+									</div>
+						
+									<h5 class="card-title post-title text-left w-lg-75 mb-0 pb-0 pb-md-1"><a target="_blank" href="https://{{p.site}}/post/{{p.id}}" class="stretched-link">
+										{{p.title | safe}}
+									</a></h5>
+						
+									{% if p.thumb_url %}
+									<div class="row post-img-lg mb-3">
+										<div class="col px-0">
+											<a target="_blank" href="https://{{p.site}}/post/{{p.id}}"><img loading="lazy" src="{{p.thumb_url}}" class="img-fluid" alt="post image"></a>
+										</div>
+									</div>
+									{% endif %}
+						
+									<div class="post-actions mt-2 d-none d-md-block">
+										<ul class="list-inline text-right d-flex">
+												{% if p.body %}
+												<li class="list-inline-item"><a href="javascript:void(0)" class="text-expand" data-id="{{p.id}}"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a></li>
+												{% endif %}
+												<li class="list-inline-item"><a target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a></li>
+						
+												<li class="list-inline-item"><a href="https://{{p.site}}/votes?link=t2_{{p.id}}"><i class="fas fa-arrows-v"></i>Votes</a></li>
+						
+												<li class="list-inline-item"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-copy"></i>Copy link</a></li>
+																					
+									</ul>
+								</div>
 							</div>
 						</div>
-						{% endif %}
-			
-						<div class="post-actions mt-2 d-none d-md-block">
-							<ul class="list-inline text-right d-flex">
-									{% if p.body %}
+						
+						<div class="card-footer d-block d-md-none mt-2">
+							<div class="post-actions">
+								<ul class="list-inline text-right d-flex">
+									<li class="list-inline-item mr-auto"><a target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a></li>
+						
+									{% if p.body and request.path != "/changelog"%}
 									<li class="list-inline-item"><a href="javascript:void(0)" class="text-expand" data-id="{{p.id}}"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a></li>
 									{% endif %}
-									<li class="list-inline-item"><a target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a></li>
-			
-									<li class="list-inline-item"><a href="https://{{p.site}}/votes?link=t2_{{p.id}}"><i class="fas fa-arrows-v"></i>Votes</a></li>
-			
-									<li class="list-inline-item"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-copy"></i>Copy link</a></li>
-																		
-						</ul>
-					</div>
-				</div>
-			</div>
-			
-			<div class="card-footer d-block d-md-none mt-2">
-				<div class="post-actions">
-					<ul class="list-inline text-right d-flex">
-						<li class="list-inline-item mr-auto"><a target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a></li>
-			
-						{% if p.body and request.path != "/changelog"%}
-						<li class="list-inline-item"><a href="javascript:void(0)" class="text-expand" data-id="{{p.id}}"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a></li>
-						{% endif %}
-			
-						<li class="list-inline-item"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-link"></i>Copy link</a></li>
-						<li id="voting-{{p.id}}-mobile" class="voting list-inline-item d-md-none">			
-							<span id="post-score-{{p.id}}-mobile" class="score"{% if not p.is_banned %} data-toggle="tooltip" data-placement="top" data-original-title="+{{ups}} | -{{downs}}"{% endif %}>{{score}}</span>
-						</li>
-					</ul>
-				</div>
-			</div>
-			
-			<!-- Post Actions Modal -->
-			<div class="modal fade modal-sm-bottom d-md-none" id="actionsModal-{{p.id}}" tabindex="-1" role="dialog" aria-labelledby="actionsModalTitle" aria-hidden="true">
-				<div class="modal-dialog modal-dialog-centered" role="document">
-					<div class="modal-content">
-						<div class="modal-header p-3">
-							<h5 class="col modal-title text-center h6">More options</h5>
-							<button type="button" class="close position-absolute py-3" style="right: 1rem;" data-dismiss="modal" aria-label="Close">
-								<span aria-hidden="true"><i class="fas fa-times-circle text-gray-500"></i></span>
-							</button>
-						</div>
-						<div class="modal-body">
-							<ul class="list-group post-actions">
-			
-								<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted"><a href="https://{{p.site}}/votes?link=t2_{{p.id}}"><i class="fas fa-arrows-v text-center text-muted mr-3"></i>Votes</a></button>			
-							</ul>
-						</div>
-					</div>
-				</div>
-			</div>
-			
-			</div>
-			
-			{% if p.body %}
-				<div class="d-none card rounded border pb-0 pt-3 my-2" id="post-text-{{p.id}}">
-					{{p.body | safe}}
-				</div>
-			{% endif %}
 						
-			{% if p.is_image and not p.over_18 and (not v or v.cardview) %}
-				<div style="text-align: center" class="mt-4">
-					<a target="_blank" rel="nofollow noopener noreferrer" href="{{p.url}}">
-						<img loading="lazy" src="{{p.url}}" class="img-fluid" style="max-height:500px;" alt="Unable to load image">
-					</a>
+									<li class="list-inline-item"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-link"></i>Copy link</a></li>
+									<li id="voting-{{p.id}}-mobile" class="voting list-inline-item d-md-none">			
+										<span id="post-score-{{p.id}}-mobile" class="score"{% if not p.is_banned %} data-toggle="tooltip" data-placement="top" data-original-title="+{{ups}} | -{{downs}}"{% endif %}>{{score}}</span>
+									</li>
+								</ul>
+							</div>
+						</div>
+						
+						<!-- Post Actions Modal -->
+						<div class="modal fade modal-sm-bottom d-md-none" id="actionsModal-{{p.id}}" tabindex="-1" role="dialog" aria-labelledby="actionsModalTitle" aria-hidden="true">
+							<div class="modal-dialog modal-dialog-centered" role="document">
+								<div class="modal-content">
+									<div class="modal-header p-3">
+										<h5 class="col modal-title text-center h6">More options</h5>
+										<button type="button" class="close position-absolute py-3" style="right: 1rem;" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true"><i class="fas fa-times-circle text-gray-500"></i></span>
+										</button>
+									</div>
+									<div class="modal-body">
+										<ul class="list-group post-actions">
+						
+											<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted"><a href="https://{{p.site}}/votes?link=t2_{{p.id}}"><i class="fas fa-arrows-v text-center text-muted mr-3"></i>Votes</a></button>			
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						</div>
+						
+						{% if p.body %}
+							<div class="d-none card rounded border pb-0 pt-3 my-2" id="post-text-{{p.id}}">
+								{{p.body | safe}}
+							</div>
+						{% endif %}
+									
+						{% if p.is_image and not p.over_18 and (not v or v.cardview) %}
+							<div style="text-align: center" class="mt-4">
+								<a target="_blank" rel="nofollow noopener noreferrer" href="{{p.url}}">
+									<img loading="lazy" src="{{p.url}}" class="img-fluid" style="max-height:500px;" alt="Unable to load image">
+								</a>
+							</div>
+						{% endif %}
+						
+						{% endfor %}
+						
+					</div>
 				</div>
-			{% endif %}
-			
-			{% endfor %}
+			</div>			
+		</div>
+		
+	</div>
+</div>
+
+<div class="container d-inline-flex d-lg-none">
+
+	<div class="row fixed-bottom bg-white border-top p-2" id="mobile-bottom-navigation-bar"
+	style="z-index: 100; bottom: 0px; transition: bottom cubic-bezier(0, 0, 0.2, 1) 220ms;">
+
+			<button type="button" class="col px-0 pl-2 btn btn-dead m-0" style="border-color: transparent !important;">
+					<a href="/" class="text-decoration-none" role="button">
+							<div class="text-center {% if request.path=='/' and request.full_path!='/?sort=hot&t=all' and request.full_path!='/?sort=new&t=all' %}text-purple{% else %}text-muted{% endif %}">
+									<i class="fas fa-home-alt text-lg d-block"></i>
+									<div class="text-small">Home</div>
+							</div>
+					</a>
+			</button>
+			<button type="button" class="col px-0 btn btn-dead m-0" style="border-color: transparent !important;">
+					<a href="/?sort=new&t=all" class="text-decoration-none" role="button">
+							<div class="text-center {% if request.full_path=='/?sort=new&t=all' %}text-purple{% else %}text-muted{% endif %}">
+									<i class="fas fa-sparkles text-lg d-block"></i>
+									<div class="text-small">New</div>
+							</div>
+					</a>
+			</button>
+			<button type="button" class="col px-2 btn btn-dead m-0" style="border-color: transparent !important;">
+					<a href="/comments" class="text-decoration-none" role="button">
+							<div class="text-center {% if request.path=='/comments' %}text-purple{% else %}text-muted{% endif %}">
+									<i class="fas fa-comment-dots text-lg d-block"></i>
+									<div class="text-small">Comments</div>
+							</div>
+					</a>
+			</button>
+			<button type="button" class="col px-0 btn btn-dead m-0" style="border-color: transparent !important;">
+					<a href="/leaderboard" class="text-decoration-none" role="button">
+							<div class="text-center {% if request.path=='/leaderboard' %}text-purple{% else %}text-muted{% endif %}">
+									<i class="fas fa-trophy text-lg d-block"></i>
+									<div class="text-small">Users</div>
+							</div>
+					</a>
+			</button>
+			<button type="button" class="col px-0 pr-2 btn btn-dead m-0" style="border-color: transparent !important;">
+					<a href="/signup" class="text-decoration-none" role="button">
+							<div class="text-center text-muted">
+									<i class="fas fa-user-plus text-lg d-block"></i>
+									<div class="text-small">Sign Up</div>
+							</div>
+					</a>
+			</button>
+	</div>
+</div>
+
+<!-- Clipboard Toast -->
+
+<div class="toast clipboard" id="toast-success" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="5000">
+	<div class="toast-body text-center">
+		<i class="fas fa-check-circle text-success mr-2"></i>Link copied to clipboard
+	</div>
+</div>
+
+<div class="toast clipboard" id="toast-error" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="5000">
+	<div class="toast-body text-center">
+		<i class="fas fa-exclamation-circle text-danger mr-2"></i>Unable to copy link
+	</div>
+</div>
+
+<div class="toast" id="toast-post-success" style="position: fixed; bottom: 1.5rem; margin: 0 auto; left: 0; right: 0; width: 275px; z-index: 1000" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="5000">
+	<div class="toast-body bg-success text-center text-white">
+		<i class="fas fa-comment-alt-smile mr-2"></i><span id="toast-post-success-text"></span>
+	</div>
+</div>
+<div class="toast" id="toast-post-error" style="position: fixed; bottom: 1.5rem; margin: 0 auto; left: 0; right: 0; width: 275px; z-index: 1000" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="5000">
+	<div class="toast-body bg-danger text-center text-white">
+		<i class="fas fa-exclamation-circle mr-2"></i><span id="toast-post-error-text"></span>
+	</div>
+</div>
+
+<!-- Expand Desktop Image Modal -->
+
+<div class="modal desktop-expanded-image-modal" id="expandImageModal" tabindex="-1" role="dialog" aria-labelledby="expandImageModalTitle" aria-hidden="true">
+	<div class="modal-dialog modal-xl modal-dialog-centered mx-auto" role="document" style="width: fit-content;">
+		<div class="modal-content bg-transparent shadow-none m-5 m-md-0">
+
+			<div class="modal-body text-center p-0">
+				<div class="d-inline-block position-relative">
+					<a href="" rel="nofollow noopener noreferrer" target="_blank" id="desktop-expanded-image-wrap-link">
+						<img loading="lazy" src="" class="img-fluid rounded" id="desktop-expanded-image" style="min-width: 250px;">
+					</a>
+					<div class="position-absolute d-flex justify-content-between align-items-center w-100 mt-1">
+						<a href="" rel="nofollow noopener noreferrer" target="_blank" class="text-gray-500 font-weight-bold text-left" id="desktop-expanded-image-link">View original</a>
+					</div>
+				</div>
+			</div>
 			
 		</div>
 	</div>
 </div>
 
-{% endblock %}
+<!-- Mobile "install the app" tooltip -->
+
+
+{% if request.path=='/' and g.system and g.timestamp>session.get('tooltip_last_dismissed',0)+60*60*24 and (not g.system.endswith('/chrome') and not g.system.endswith('/other')) and not g.system.endswith('/webview') %}
+
+<div id="mobile-prompt-container" class="fixed-bottom">
+	<div id="mobile-prompt" href="javascript:void(0)" data-toggle="tooltip" data-container="#mobile-prompt-container" data-placement="top" data-trigger="click" title="Install the {{'SITE_NAME' | app_config}} webapp by saving this page to your home screen!"></div>
+</div>
+{% endif %}
+
+</body>
+
+</html>
