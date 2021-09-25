@@ -145,22 +145,20 @@
 
 	<link rel="icon" type="image/png" href="/assets/icon.gif">
 	
-	<title>{{'SITE_NAME' | app_config}}</title>
+	<title>MarseyVerse</title>
 
 	<meta property="og:type" content="article" />
-	<meta property="og:title" content="{{'SITE_NAME' | app_config}}" />
+	<meta property="og:title" content="MarseyVerse" />
 	<meta property="og:site_name" content="{{request.host}}" />
-	<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/preview.gif" />
-	<meta property="og:url" content="{{request.path | full_link}}">
+	<meta property="og:image" content="MarseyVerse/assets/preview.gif" />
 	<meta property="og:author" name="author" content="@{{request.host_url}}" />
 	<meta property="og:site_name" content="{{request.host}}" />
 
 	<meta name="twitter:card" content="summary_large_image"/>
 	<meta name="twitter:site" content="@{{request.host_url}}">
-	<meta name="twitter:title" content="{{'SITE_NAME' | app_config}}" />
+	<meta name="twitter:title" content="MarseyVerse" />
 	<meta name="twitter:creator" content="@{{request.host_url}}">
 	<meta name="twitter:image" content="/assets/preview.gif" />
-	<meta name="twitter:url" content="{{request.path | full_link}}" />
 
 	<!-- iOS webapp -->
 	<meta name="apple-mobile-web-app-capable" content="yes">
@@ -170,13 +168,13 @@
 
 	<link rel="apple-touch-icon" sizes="180x180" href="/assets/icon.gif">
 		<link rel="manifest" href="/assets/manifest.json">
-		<link rel="mask-icon" href="/assets/icon.gif" color="#{{'DEFAULT_COLOR' | app_config}}">
+		<link rel="mask-icon" href="/assets/icon.gif" color="#805ad5">
 		<link rel="shortcut icon" href="/assets/icon.gif">
-		<meta name="apple-mobile-web-app-title" content="{{'SITE_NAME' | app_config}}">
-		<meta name="application-name" content="{{'SITE_NAME' | app_config}}">
-		<meta name="msapplication-TileColor" content="#{{'DEFAULT_COLOR' | app_config}}">
+		<meta name="apple-mobile-web-app-title" content="MarseyVerse">
+		<meta name="application-name" content="MarseyVerse">
+		<meta name="msapplication-TileColor" content="#805ad5">
 		<meta name="msapplication-config" content="/assets/browserconfig.xml">
-		<meta name="theme-color" content="#{{'DEFAULT_COLOR' | app_config}}">
+		<meta name="theme-color" content="#805ad5">
 
 
 
@@ -416,7 +414,7 @@
 											{% endfor %}
 										{% endif %}
 										{% if p.stickied %}<i class="fas fa-thumbtack text-admin fa-rotate--45" data-toggle="tooltip" data-placement="bottom" title="Pinned post"></i>{% endif %}
-										{% if p.distinguish_level %}<i class="fas fa-broom text-admin" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{'SITE_NAME' | app_config}} Admin, speaking officially"></i>{% endif %}
+										{% if p.distinguish_level %}<i class="fas fa-broom text-admin" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="MarseyVerse Admin, speaking officially"></i>{% endif %}
 										{% if p.is_pinned and request.path.startswith('/@') %}<i class="fas fa-thumbtack text-admin fa-rotate--45" data-toggle="tooltip" data-placement="bottom" title="Pinned to profile"></i>{% endif %}
 										{% if p.over_18 %}<span class="badge badge-danger text-small-extra mr-1">+18</span>{% endif %}
 										{% if p.is_bot %} <i class="fad fa-robot text-info" data-toggle="tooltip" data-placement="bottom"	data-original-title="Bot"></i>{% endif %}
@@ -618,7 +616,7 @@
 {% if request.path=='/' and g.system and g.timestamp>session.get('tooltip_last_dismissed',0)+60*60*24 and (not g.system.endswith('/chrome') and not g.system.endswith('/other')) and not g.system.endswith('/webview') %}
 
 <div id="mobile-prompt-container" class="fixed-bottom">
-	<div id="mobile-prompt" href="javascript:void(0)" data-toggle="tooltip" data-container="#mobile-prompt-container" data-placement="top" data-trigger="click" title="Install the {{'SITE_NAME' | app_config}} webapp by saving this page to your home screen!"></div>
+	<div id="mobile-prompt" href="javascript:void(0)" data-toggle="tooltip" data-container="#mobile-prompt-container" data-placement="top" data-trigger="click" title="Install the MarseyVerse webapp by saving this page to your home screen!"></div>
 </div>
 {% endif %}
 
