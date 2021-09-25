@@ -5,7 +5,6 @@
 	<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-	<script src="/assets/js/general10.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
 
 	<script>
@@ -25,294 +24,6 @@
 			console.log(e);
 		});
 
-		// comment collapse
-
-		// Toggle comment collapse
-
-		function collapse_comment(comment_id) {
-
-			var comment = "comment-" + comment_id;
-
-			document.getElementById(comment).classList.toggle("collapsed");
-
-		};
-
-		//Commenting form
-
-		// Expand comment box on focus, hide otherwise
-
-		$('.comment-box').focus(function (event) {
-			event.preventDefault();
-
-			$(this).parent().parent().addClass("collapsed");
-
-		});
-
-		// Comment edit form
-
-		toggleEdit=function(id){
-			comment=document.getElementById("comment-text-"+id);
-			form=document.getElementById("comment-edit-"+id);
-			box=document.getElementById('edit-box-comment-'+id);
-			actions = document.getElementById('comment-' + id +'-actions');
-
-			comment.classList.toggle("d-none");
-			form.classList.toggle("d-none");
-			actions.classList.toggle("d-none");
-			autoExpand(box);
-		};
-
-		// Post edit form
-
-		togglePostEdit=function(id){
-
-			body=document.getElementById("post-body");
-			title=document.getElementById("post-title");
-			form=document.getElementById("edit-post-body-"+id);
-			box=document.getElementById("post-edit-box-"+id);
-			box2=document.getElementById("post-edit-box2-"+id);
-
-			body.classList.toggle("d-none");
-			title.classList.toggle("d-none");
-			form.classList.toggle("d-none");
-			autoExpand(box);
-			autoExpand(box2);
-		};
-
-		//comment modding
-		function removeComment(post_id) {
-			url="/ban_comment/"+post_id
-
-			callback=function(){
-				document.getElementById("comment-"+post_id+"-only").classList.add("banned");
-
-				button=document.getElementById("moderate-"+post_id);
-				button.onclick=function(){approveComment(post_id)};
-				button.innerHTML='<i class="fas fa-clipboard-check"></i>Approve'
-			}
-			post(url, callback, "Comment has been removed.")
-		};
-
-		function approveComment(post_id) {
-			url="/unban_comment/"+post_id
-
-			callback=function(){
-				document.getElementById("comment-"+post_id+"-only").classList.remove("banned");
-
-				button=document.getElementById("moderate-"+post_id);
-				button.onclick=function(){removeComment(post_id)};
-				button.innerHTML='<i class="fas fa-trash-alt"></i>Remove'
-			}
-
-			post(url, callback, "Comment has been approved.")
-		}
-
-		admin_comment=function(cid){
-
-
-			var xhr = new XMLHttpRequest();
-			xhr.open("post", "/distinguish_comment/"+cid);
-
-			var form = new FormData();
-
-			form.append('formkey', formkey());
-
-			xhr.withCredentials=true;
-			xhr.onload=function(){
-				if (xhr.status==200) {
-					comment=document.getElementById('comment-'+cid+'-only');
-					comment.innerHTML=JSON.parse(xhr.response)["html"];
-				}
-				else {
-					var commentError = document.getElementById("comment-error-text");
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-error').toast('show');
-					commentError.textContent = JSON.parse(xhr.response)["error"];
-				}
-			}
-			xhr.send(form)
-		}
-
-		//Autoexpand textedit comments
-
-		function autoExpand (field) {
-
-			//get current scroll position
-			xpos=window.scrollX;
-			ypos=window.scrollY;
-
-			// Reset field height
-			field.style.height = 'inherit';
-
-			// Get the computed styles for the element
-			var computed = window.getComputedStyle(field);
-
-			// Calculate the height
-			var height = parseInt(computed.getPropertyValue('border-top-width'), 10)
-			+ parseInt(computed.getPropertyValue('padding-top'), 10)
-			+ field.scrollHeight
-			+ parseInt(computed.getPropertyValue('padding-bottom'), 10)
-			+ parseInt(computed.getPropertyValue('border-bottom-width'), 10)
-			+ 32;
-
-			field.style.height = height + 'px';
-
-			//keep window position from changing
-			window.scrollTo(xpos,ypos);
-
-		};
-
-		document.addEventListener('input', function (event) {
-			if (event.target.tagName.toLowerCase() !== 'textarea') return;
-			autoExpand(event.target);
-		}, false);
-
-		// Delete Post
-
-		function delete_postModal(id) {
-
-			// Passed data for modal
-
-			document.getElementById("deletePostButton-mobile").addEventListener("click", delete_post);
-
-			document.getElementById("deletePostButton").addEventListener("click", delete_post);
-
-			function delete_post(){	
-
-				this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Deleting post';	
-				this.disabled = true; 
-				post('/delete_post/' + id,
-					callback = function() {
-
-						location.reload();
-					}
-					)
-			}
-
-		};
-
-		// Delete Comment
-
-		function delete_commentModal(id) {
-
-			// Passed data for modal
-
-			document.getElementById("deleteCommentButton").onclick = function() {	
-
-				this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Deleting comment';	
-				this.disabled = true; 
-				post('/delete/comment/' + id,
-					callback = function() {
-
-						location.reload();
-					}
-					)
-			}
-
-		};
-
-		//flagging
-		// Flag Comment
-
-		report_commentModal = function(id, author) {
-
-			document.getElementById("comment-author").textContent = author;
-
-			//offtopic.disabled=true;
-
-			document.getElementById("reportCommentButton").onclick = function() {
-
-				this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Reporting comment';
-				this.disabled = true;
-				var xhr = new XMLHttpRequest();
-				xhr.open("POST", '/flag/comment/'+id, true);
-				var form = new FormData()
-				form.append("formkey", formkey());
-				form.append("reason", document.getElementById("reason-comment").value);
-
-				xhr.withCredentials=true;
-
-				xhr.onload=function() {
-					document.getElementById("reportCommentFormBefore").classList.add('d-none');
-					document.getElementById("reportCommentFormAfter").classList.remove('d-none');
-				};
-
-				xhr.onerror=function(){alert(errortext)};
-				xhr.send(form);
-			}
-
-		};
-
-		$('#reportCommentModal').on('hidden.bs.modal', function () {
-
-			var button = document.getElementById("reportCommentButton");
-
-			var beforeModal = document.getElementById("reportCommentFormBefore");
-			var afterModal = document.getElementById("reportCommentFormAfter");
-
-			button.innerHTML='Report comment';
-			button.disabled= false;
-			afterModal.classList.add('d-none');
-
-			if ( beforeModal.classList.contains('d-none') ) {
-				beforeModal.classList.remove('d-none');
-			}
-
-		});
-
-
-		// Flag Submission
-
-		report_postModal = function(id, author) {
-
-			document.getElementById("post-author").textContent = author;
-
-			submitbutton=document.getElementById("reportPostButton");
-
-			submitbutton.onclick = function() {
-
-				this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Reporting post';
-				this.disabled = true;
-
-				var xhr = new XMLHttpRequest();
-				xhr.open("POST", '/flag/post/'+id, true);
-				var form = new FormData()
-				form.append("formkey", formkey());
-				form.append("reason", document.getElementById("reason").value);
-
-				xhr.withCredentials=true;
-
-				xhr.onload=function() {
-					document.getElementById("reportPostFormBefore").classList.add('d-none');
-					document.getElementById("reportPostFormAfter").classList.remove('d-none');
-				};
-
-				xhr.onerror=function(){alert(errortext)};
-				xhr.send(form);
-
-			}
-		};
-
-		$('#reportPostModal').on('hidden.bs.modal', function () {
-
-			var button = document.getElementById("reportPostButton");
-
-			var beforeModal = document.getElementById("reportPostFormBefore");
-			var afterModal = document.getElementById("reportPostFormAfter");
-
-			button.innerHTML='Report post';
-			button.disabled= false;
-
-			afterModal.classList.add('d-none');
-
-			if ( beforeModal.classList.contains('d-none') ) {
-				beforeModal.classList.remove('d-none');
-			}
-
-		});
-	
-
 
 
 		$('.expandable-image').click( function(event) {
@@ -327,100 +38,10 @@
 			expandDesktopImage(url,url);
 		})
 	
-		$('.text-expand').click(function(event){
-		if (event.which != 1) {
-			return
-		};
-		id=$(this).data('id');
 
-
-		$('#post-text-'+id).toggleClass('d-none');
-		$('.text-expand-icon-'+id).toggleClass('fa-expand-alt');
-		$('.text-expand-icon-'+id).toggleClass('fa-compress-alt');
-
-		})
-
-		// Text Formatting
-
-		// Bold Text
-
-		makeBold = function (form) {
-			var text = document.getElementById(form);
-			var startIndex = text.selectionStart,
-			endIndex = text.selectionEnd;
-			var selectedText = text.value.substring(startIndex, endIndex);
-
-			var format = '**'
-
-			if (selectedText.includes('**')) {
-				text.value = selectedText.replace(/\*/g, '');
-				
-			}
-			else if (selectedText.length == 0) {
-				text.value = text.value.substring(0, startIndex) + selectedText + text.value.substring(endIndex);
-			}
-			else {
-				text.value = text.value.substring(0, startIndex) + format + selectedText + format + text.value.substring(endIndex);
-			}
-		}
-
-		// Italicize Comment Text
-
-		makeItalics = function (form) {
-			var text = document.getElementById(form);
-			var startIndex = text.selectionStart,
-			endIndex = text.selectionEnd;
-			var selectedText = text.value.substring(startIndex, endIndex);
-
-			var format = '*'
-
-			if (selectedText.includes('*')) {
-				text.value = selectedText.replace(/\*/g, '');
-				
-			}
-			else if (selectedText.length == 0) {
-				text.value = text.value.substring(0, startIndex) + selectedText + text.value.substring(endIndex);
-			}
-			else {
-				text.value = text.value.substring(0, startIndex) + format + selectedText + format + text.value.substring(endIndex);
-			}
-		}
-
-		// Quote Comment Text
-
-		makeQuote = function (form) {
-			var text = document.getElementById(form);
-			var startIndex = text.selectionStart,
-			endIndex = text.selectionEnd;
-			var selectedText = text.value.substring(startIndex, endIndex);
-
-			var format = '>'
-
-			if (selectedText.includes('>')) {
-				text.value = text.value.substring(0, startIndex) + selectedText.replace(/\>/g, '') + text.value.substring(endIndex);
-				
-			}
-			else if (selectedText.length == 0) {
-				text.value = text.value.substring(0, startIndex) + selectedText + text.value.substring(endIndex);
-			}
-			else {
-				text.value = text.value.substring(0, startIndex) + format + selectedText + text.value.substring(endIndex);
-			}
-		}
-
-		// award modal
-
-		function awardModal(link) {
-			var target = document.getElementById("awardTarget");
-
-			target.value = link;
-		}
-
-		// Expand Images on Desktop
 
 		function expandDesktopImage(image, link) {
 
-		// Link text
 
 			var linkText = document.getElementById("desktop-expanded-image-link");
 			var imgLink = document.getElementById("desktop-expanded-image-wrap-link");
@@ -434,169 +55,6 @@
 			linkText.textContent = 'View original';
 			};
 
-		post_comment=function(fullname){
-
-
-			var form = new FormData();
-
-			form.append('formkey', formkey());
-			form.append('parent_fullname', fullname);
-			form.append('submission', document.getElementById('reply-form-submission-'+fullname).value);
-			form.append('body', document.getElementById('reply-form-body-'+fullname).value);
-			form.append('file', document.getElementById('file-upload-reply-'+fullname).files[0]);
-			var xhr = new XMLHttpRequest();
-			xhr.open("post", "/comment");
-			xhr.withCredentials=true;
-			xhr.onload=function(){
-				if (xhr.status==200) {
-					commentForm=document.getElementById('comment-form-space-'+fullname);
-					commentForm.innerHTML=JSON.parse(xhr.response)["html"];
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-success').toast('show');
-				}
-				else {
-					var commentError = document.getElementById("comment-error-text");
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-error').toast('show');
-					commentError.textContent = JSON.parse(xhr.response)["error"];
-				}
-			}
-			xhr.send(form)
-
-			document.getElementById('save-reply-to-'+fullname).classList.add('disabled');
-
-		}
-
-		post_reply=function(id){
-
-			var form = new FormData();
-
-			form.append('formkey', formkey());
-			form.append('parent_id', id);
-			form.append('body', document.getElementById('reply-form-body-'+id).value);
-			var xhr = new XMLHttpRequest();
-			xhr.open("post", "/reply");
-			xhr.withCredentials=true;
-			xhr.onload=function(){
-				if (xhr.status==200) {
-					commentForm=document.getElementById('comment-form-space-'+id);
-					commentForm.innerHTML=JSON.parse(xhr.response)["html"];
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-success').toast('show');
-				}
-				else {
-					var commentError = document.getElementById("comment-error-text");
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-error').toast('show');
-					commentError.textContent = JSON.parse(xhr.response)["error"];
-				}
-			}
-			xhr.send(form)
-
-			document.getElementById('save-reply-to-'+id).classList.add('disabled');
-
-			}
-
-		herald_comment=function(cid){
-
-
-			var xhr = new XMLHttpRequest();
-			xhr.open("post", "/admin/distinguish_comment/"+cid);
-
-			var form = new FormData();
-
-			form.append('formkey', formkey());
-
-			xhr.withCredentials=true;
-			xhr.onload=function(){
-				if (xhr.status==200) {
-					comment=document.getElementById('comment-'+cid+'-only');
-					comment.innerHTML=JSON.parse(xhr.response)["html"];
-				}
-				else {
-					var commentError = document.getElementById("comment-error-text");
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-error').toast('show');
-					commentError.textContent = JSON.parse(xhr.response)["error"];
-				}
-			}
-			xhr.send(form)
-
-		}
-
-		comment_edit=function(id){
-
-			var commentError = document.getElementById("comment-error-text");
-
-			var form = new FormData();
-
-			form.append('formkey', formkey());
-			form.append('body', document.getElementById('comment-edit-body-'+id).value);
-			form.append('file', document.getElementById('file-edit-reply-'+id).files[0]);
-
-			var xhr = new XMLHttpRequest();
-			xhr.open("post", "/edit_comment/"+id);
-			xhr.withCredentials=true;
-			xhr.onload=function(){
-				if (xhr.status==200) {
-					commentForm=document.getElementById('comment-text-'+id);
-					commentForm.innerHTML=JSON.parse(xhr.response)["html"];
-					document.getElementById('cancel-edit-'+id).click()
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-success').toast('show');
-				}
-				else {
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-error').toast('show');
-					commentError.textContent = JSON.parse(xhr.response)["error"];
-				}
-			}
-			xhr.send(form)
-
-		}
-
-	
-		block_user=function() {
-
-			var exileForm = document.getElementById("exile-form");
-
-			var exileError = document.getElementById("toast-error-message");
-
-			var usernameField = document.getElementById("exile-username");
-
-			var isValidUsername = usernameField.checkValidity();
-
-			username = usernameField.value;
-
-			if (isValidUsername) {
-
-				var xhr = new XMLHttpRequest();
-				xhr.open("post", "/settings/block");
-				xhr.withCredentials=true;
-				f=new FormData();
-				f.append("username", username);
-				f.append("formkey", formkey());
-				xhr.onload=function(){
-					if (xhr.status<300) {
-						window.location.reload(true);
-					}
-					else {
-						$('#toast-exile-error').toast('dispose');
-						$('#toast-exile-error').toast('show');
-						exileError.textContent = JSON.parse(xhr.response)["error"];
-					}
-				}
-				xhr.send(f)
-			}
-
-		}
 
 		//mobile prompt
 		if (("standalone" in window.navigator) &&			// Check if "standalone" property exists
@@ -625,184 +83,74 @@
 			}
 		}
 	
-	// Voting
 
-		function post_vote(url, callback) {
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", url, true);
-		var form = new FormData()
-		form.append("formkey", formkey());
-		xhr.withCredentials=true;
+		window.onload = function () {
+			var prevScrollpos = window.pageYOffset;
+			window.onscroll = function () {
+				var currentScrollPos = window.pageYOffset;
 
-		xhr.onload = function() {
-			if (xhr.status==204) {}
-				else if (xhr.status >= 200 && xhr.status < 300) {
-					$('#toast-post-success').toast('dispose');
-					$('#toast-post-success').toast('show');
-					document.getElementById('toast-post-success-text').innerText = JSON.parse(xhr.response)["message"];
-					callback(xhr)
-					return true
+				var topBar = document.getElementById("fixed-bar-mobile");
 
-				} else if (xhr.status >= 300 && xhr.status < 400) {
-					window.location.href = JSON.parse(xhr.response)["redirect"]
-				} else {
-					data=JSON.parse(xhr.response);
-					
-					$('#toast-post-error').toast('dispose');
-					$('#toast-post-error').toast('show');
-					document.getElementById('toast-post-error-text').innerText = data["error"];
-					return false
-					
-				}
-			};
+				var bottomBar = document.getElementById("mobile-bottom-navigation-bar");
 
-			xhr.send(form);
+				var dropdown = document.getElementById("mobileSortDropdown");
 
-		}
+				var navbar = document.getElementById("navbar");
 
-		var upvote = function(event) {
-
-			var type = event.target.dataset.contentType;
-			var id = event.target.dataset.idUp;
-
-			var downvoteButton = document.getElementsByClassName(type + '-' + id + '-down');
-			var upvoteButton = document.getElementsByClassName(type + '-' + id + '-up');
-			var scoreText = document.getElementsByClassName(type + '-score-' + id);
-
-			for (var j = 0; j < upvoteButton.length && j < downvoteButton.length && j < scoreText.length; j++) {
-
-				var thisUpvoteButton = upvoteButton[j];
-				var thisDownvoteButton = downvoteButton[j];
-				var thisScoreText = scoreText[j];
-				var thisScore = Number(thisScoreText.textContent);
-
-				if (thisUpvoteButton.classList.contains('active')) {
-					thisUpvoteButton.classList.remove('active')
-					thisScoreText.textContent = thisScore - 1
-					voteDirection = "0"
-				} else if (thisDownvoteButton.classList.contains('active')) {
-					thisUpvoteButton.classList.add('active')
-					thisDownvoteButton.classList.remove('active')
-					thisScoreText.textContent = thisScore + 2
-					voteDirection = "1"
-				} else {
-					thisUpvoteButton.classList.add('active')
-					thisScoreText.textContent = thisScore + 1
-					voteDirection = "1"
-				}
-
-				if (thisUpvoteButton.classList.contains('active')) {
-					thisScoreText.classList.add('score-up')
-					thisScoreText.classList.remove('score-down')
-					thisScoreText.classList.remove('score')
-				} else if (thisDownvoteButton.classList.contains('active')) {
-					thisScoreText.classList.add('score-down')
-					thisScoreText.classList.remove('score-up')
-					thisScoreText.classList.remove('score')
-				} else {
-					thisScoreText.classList.add('score')
-					thisScoreText.classList.remove('score-up')
-					thisScoreText.classList.remove('score-down')
-				}
-			}
-
-			post_vote("/vote/" + type + "/" + id + "/" + voteDirection);
-			
-		}
-
-		var downvote = function(event) {
-
-			var type = event.target.dataset.contentType;
-			var id = event.target.dataset.idDown;
-
-			var downvoteButton = document.getElementsByClassName(type + '-' + id + '-down');
-			var upvoteButton = document.getElementsByClassName(type + '-' + id + '-up');
-			var scoreText = document.getElementsByClassName(type + '-score-' + id);
-
-			for (var j = 0; j < upvoteButton.length && j < downvoteButton.length && j < scoreText.length; j++) {
-
-				var thisUpvoteButton = upvoteButton[j];
-				var thisDownvoteButton = downvoteButton[j];
-				var thisScoreText = scoreText[j];
-				var thisScore = Number(thisScoreText.textContent);
-
-				if (thisDownvoteButton.classList.contains('active')) {
-					thisDownvoteButton.classList.remove('active')
-					thisScoreText.textContent = thisScore + 1
-					voteDirection = "0"
-				} else if (thisUpvoteButton.classList.contains('active')) {
-					thisDownvoteButton.classList.add('active')
-					thisUpvoteButton.classList.remove('active')
-					thisScoreText.textContent = thisScore - 2
-					voteDirection = "-1"
-				} else {
-					thisDownvoteButton.classList.add('active')
-					thisScoreText.textContent = thisScore - 1
-					voteDirection = "-1"
-				}
-
-				if (thisUpvoteButton.classList.contains('active')) {
-					thisScoreText.classList.add('score-up')
-					thisScoreText.classList.remove('score-down')
-					thisScoreText.classList.remove('score')
-				} else if (thisDownvoteButton.classList.contains('active')) {
-					thisScoreText.classList.add('score-down')
-					thisScoreText.classList.remove('score-up')
-					thisScoreText.classList.remove('score')
-				} else {
-					thisScoreText.classList.add('score')
-					thisScoreText.classList.remove('score-up')
-					thisScoreText.classList.remove('score-down')
-				}
-			}
-
-			post_vote("/vote/" + type + "/" + id + "/" + voteDirection);
-			
-		}
-
-
-		var register_votes = function() {
-			var upvoteButtons = document.getElementsByClassName('upvote-button')
-
-			var downvoteButtons = document.getElementsByClassName('downvote-button')
-
-			var voteDirection = 0
-
-			for (var i = 0; i < upvoteButtons.length; i++) {
-				upvoteButtons[i].addEventListener('click', upvote, false);
-				upvoteButtons[i].addEventListener('keydown', function(event) {
-					if (event.keyCode === 13) {
-						upvote(event)
+				if (bottomBar != null) {
+					if (prevScrollpos > currentScrollPos && (window.innerHeight + currentScrollPos) < (document.body.offsetHeight - 65)) {
+						bottomBar.style.bottom = "0px";
+					} 
+					else if (currentScrollPos <= 125 && (window.innerHeight + currentScrollPos) < (document.body.offsetHeight - 65)) {
+						bottomBar.style.bottom = "0px";
 					}
-				}, false)
-			};
-
-			for (var i = 0; i < downvoteButtons.length; i++) {
-				downvoteButtons[i].addEventListener('click', downvote, false);
-				downvoteButtons[i].addEventListener('keydown', function(event) {
-					if (event.keyCode === 13) {
-						downvote(event)
+					else if (prevScrollpos > currentScrollPos && (window.innerHeight + currentScrollPos) >= (document.body.offsetHeight - 65)) {
+						bottomBar.style.bottom = "-50px";
 					}
-				}, false)
-			};
+					else {
+						bottomBar.style.bottom = "-50px";
+					}
+				}
+
+				// Execute if bottomBar exists
+
+				if (topBar != null && dropdown != null) {
+					if (prevScrollpos > currentScrollPos) {
+						topBar.style.top = "48px";
+						navbar.classList.remove("shadow");
+					} 
+					else if (currentScrollPos <= 125) {
+						topBar.style.top = "48px";
+						navbar.classList.remove("shadow");
+					}
+					else {
+						topBar.style.top = "-48px";
+						dropdown.classList.remove('show');
+						navbar.classList.add("shadow");
+					}
+				}
+				prevScrollpos = currentScrollPos;
+			}
 		}
 
-		register_votes()
+		$(document).ready(function(){
+			$('[data-toggle="tooltip"]').tooltip(); 
+		});
 	</script>
 	
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<meta name="thumbnail" content="/assets/images/preview.gif">
+	<meta name="thumbnail" content="/assets/preview.gif">
 
-	<link rel="icon" type="image/png" href="/assets/images/icon.gif">
+	<link rel="icon" type="image/png" href="/assets/icon.gif">
 	
 	<title>{{'SITE_NAME' | app_config}}</title>
 
 	<meta property="og:type" content="article" />
 	<meta property="og:title" content="{{'SITE_NAME' | app_config}}" />
 	<meta property="og:site_name" content="{{request.host}}" />
-	<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/images/preview.gif" />
+	<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/preview.gif" />
 	<meta property="og:url" content="{{request.path | full_link}}">
 	<meta property="og:author" name="author" content="@{{request.host_url}}" />
 	<meta property="og:site_name" content="{{request.host}}" />
@@ -811,7 +159,7 @@
 	<meta name="twitter:site" content="@{{request.host_url}}">
 	<meta name="twitter:title" content="{{'SITE_NAME' | app_config}}" />
 	<meta name="twitter:creator" content="@{{request.host_url}}">
-	<meta name="twitter:image" content="/assets/images/preview.gif" />
+	<meta name="twitter:image" content="/assets/preview.gif" />
 	<meta name="twitter:url" content="{{request.path | full_link}}" />
 
 	<!-- iOS webapp -->
@@ -820,16 +168,14 @@
 	<meta name="format-detection" content="telephone=no">
 	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 
-	<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/icon.gif">
-	<!---<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon.gif">
-		<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/icon.gif">--->
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/icon.gif">
 		<link rel="manifest" href="/assets/manifest.json">
-		<link rel="mask-icon" href="/assets/images/icon.gif" color="#{{'DEFAULT_COLOR' | app_config}}">
-		<link rel="shortcut icon" href="/assets/images/icon.gif">
+		<link rel="mask-icon" href="/assets/icon.gif" color="#{{'DEFAULT_COLOR' | app_config}}">
+		<link rel="shortcut icon" href="/assets/icon.gif">
 		<meta name="apple-mobile-web-app-title" content="{{'SITE_NAME' | app_config}}">
 		<meta name="application-name" content="{{'SITE_NAME' | app_config}}">
 		<meta name="msapplication-TileColor" content="#{{'DEFAULT_COLOR' | app_config}}">
-		<meta name="msapplication-config" content="/assets/images/browserconfig.xml">
+		<meta name="msapplication-config" content="/assets/browserconfig.xml">
 		<meta name="theme-color" content="#{{'DEFAULT_COLOR' | app_config}}">
 
 
@@ -837,132 +183,132 @@
 		<link
 		rel="apple-touch-startup-image"
 		sizes="320x480"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="640x960"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-icon"
 		sizes="640x1136"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-icon"
 		sizes="750x1334"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="768x1004"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="768x1024"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="828x1792"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1024x748"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1024x768"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1125x2436"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1242x2208"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1242x2688"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1334x750"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1536x2008"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1536x2048"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1668x2224"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1792x828"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2048x1496"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2048x1536"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2048x2732"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2208x1242"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2224x1668"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2436x1125"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2668x1242"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2737x2048"
-		href="/assets/images/icon.gif"
+		href="/assets/icon.gif"
 		/>
 
-		<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
+		<link rel="stylesheet" href="/assets/midnight.css">
 		<!-- Font Awesome -->
-		<link href="/assets/style/fa.css" rel="stylesheet"> <!--load all styles -->
+		<link href="/assets/fa.css" rel="stylesheet"> <!--load all styles -->
 
  </head>
 
@@ -1080,7 +426,7 @@
 										{% if p.active_flags %}<a class="btn btn-primary" href="javascript:void(0)" style="padding:1px 5px; font-size:10px;" onclick="document.getElementById('flaggers-{{p.id}}').classList.toggle('d-none')">{{p.active_flags}} Reports</a>{% endif %}
 										{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:#1DA1F2" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{p.author.verified}}"></i>
 										{% endif %}
-										<a href="https://{{p.site}}{{p.author.url}}"style="color: #{{p.author.namecolor}};  font-weight: bold;" class="user-name"><img loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"/><span {% if p.author.patron %}class="patron" style="background-color:#{{p.author.namecolor}};"{% endif %}>{{p.author.username}}</span></a>{% if p.author.customtitle %}<bdi  style="color: #{{p.author.titlecolor}}">&nbsp;&nbsp;{% if p.author.quadrant %}<img loading="lazy" height="20" src="/assets/images/PCM/quadrants/{{p.author.quadrant}}.gif">{% endif %}{{p.author.customtitle | safe}}</bdi>{% endif %}
+										<a href="https://{{p.site}}{{p.author.url}}"style="color: #{{p.author.namecolor}};  font-weight: bold;" class="user-name"><img loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"/><span {% if p.author.patron %}class="patron" style="background-color:#{{p.author.namecolor}};"{% endif %}>{{p.author.username}}</span></a>{% if p.author.customtitle %}<bdi  style="color: #{{p.author.titlecolor}}">&nbsp;&nbsp;{{p.author.customtitle | safe}}</bdi>{% endif %}
 										&nbsp;
 										{{p.site}}
 										&nbsp;
@@ -1161,15 +507,7 @@
 								{{p.body | safe}}
 							</div>
 						{% endif %}
-									
-						{% if p.is_image and not p.over_18 and (not v or v.cardview) %}
-							<div style="text-align: center" class="mt-4">
-								<a target="_blank" rel="nofollow noopener noreferrer" href="{{p.url}}">
-									<img loading="lazy" src="{{p.url}}" class="img-fluid" style="max-height:500px;" alt="Unable to load image">
-								</a>
-							</div>
-						{% endif %}
-						
+															
 						{% endfor %}
 						
 					</div>

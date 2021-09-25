@@ -166,7 +166,7 @@ def postcache():
 			try: post = site[count]
 			except: continue
 			post = Post(post)
-			if hasattr(post, "url") and post.url and (post.url.lower().endswith('.jpg') or post.url.lower().endswith('.png') or post.url.lower().endswith('.gif') or post.url.lower().endswith('.jpeg') or post.url.lower().endswith('?maxwidth=9999')): post.is_image = True
+			if hasattr(post, "url") and post.url and (post.url.lower().endswith('.jpg') or post.url.lower().endswith('.png') or post.url.lower().endswith('.webp') or post.url.lower().endswith('.gif') or post.url.lower().endswith('.jpeg') or post.url.lower().endswith('?maxwidth=9999')): post.is_image = True
 			if site == drama: post.site = "rdrama.net"
 			elif site == pcm: post.site = "pcmemes.net"
 			elif site == gigachad: post.site = "gigachadlife.com"
@@ -196,7 +196,7 @@ def marseyverse():
 
 @app.get("/assets/favicon.ico")
 def favicon():
-	return send_file(f"./assets/images/icon.gif")
+	return send_file(f"./assets/icon.gif")
 
 @app.route('/assets/<path:path>')
 @limiter.exempt
