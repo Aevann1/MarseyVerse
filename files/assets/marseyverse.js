@@ -24,6 +24,11 @@ function expandDesktopImage(image) {
     linkText.textContent = 'View original';
 };
 
+function expandText(id) {
+    document.getElementById('post-text-'+id).toggleClass('d-none');
+    document.getElementsByClassName('text-expand-icon-'+id)[0].toggleClass('fa-expand-alt');
+    document.getElementsByClassName('text-expand-icon-'+id)[0].toggleClass('fa-compress-alt');
+};
 
 window.onload = function () {
     var prevScrollpos = window.pageYOffset;
@@ -69,15 +74,6 @@ window.onload = function () {
             }
         }
         prevScrollpos = currentScrollPos;
-    }
-}
-
-for(let el of document.getElementsByClassName('text-expand')) {
-    el.onclick = function() {
-        id=this.data('id');
-        document.getElementById('post-text-'+id).toggleClass('d-none');
-        document.getElementsByClassName('text-expand-icon-'+id)[0].toggleClass('fa-expand-alt');
-        document.getElementsByClassName('text-expand-icon-'+id)[0].toggleClass('fa-compress-alt');
     }
 }
 
