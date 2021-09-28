@@ -306,7 +306,7 @@
 									<div class="post-actions mt-2 d-none d-md-block">
 										<ul class="list-inline text-right d-flex">
 												{% if p.body %}
-												<a class="list-inline-item text-expand" href="javascript:void(0)" data-bs-id="{{p.id}}"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
+												<a class="list-inline-item text-expand" href="javascript:void(0)" data-id="{{p.id}}"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
 												{% endif %}
 												<a class="list-inline-item" target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a>
 						
@@ -325,7 +325,7 @@
 									<a class="list-inline-item mr-auto" target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a>
 						
 									{% if p.body and request.path != "/changelog"%}
-										<a class="list-inline-item text-expand"><a href="javascript:void(0)" data-bs-id="{{p.id}}"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
+										<a class="list-inline-item text-expand"><a href="javascript:void(0)" data-id="{{p.id}}"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
 									{% endif %}
 						
 									<a class="list-inline-item copy-link" href="javascript:void(0);" role="button"data-clipboard-text="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-link"></i>Copy link</a>
