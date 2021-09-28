@@ -73,17 +73,11 @@ window.onload = function () {
 }
 
 for(let el of document.getElementsByClassName('text-expand')) {
-    el.onclick = function(event){
-        if (event.which != 1) {
-            return
-        };
+    el.onclick = function() {
         id=this.data('id');
-
-
         document.getElementById('post-text-'+id).toggleClass('d-none');
         document.getElementsByClassName('text-expand-icon-'+id)[0].toggleClass('fa-expand-alt');
         document.getElementsByClassName('text-expand-icon-'+id)[0].toggleClass('fa-compress-alt');
-
     }
 }
 
