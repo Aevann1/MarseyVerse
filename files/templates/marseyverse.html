@@ -200,9 +200,7 @@
 		<ul class="navbar-nav ml-auto d-none d-md-flex">
 
 			{% if v and v.admin_level==6 %}
-			<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-				<a class="nav-link" href="/admin/" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin tools"><i class="fas fa-crown{% if v.has_report_queue %} text-success{% endif %}"></i></a>
-			</li>
+				<a class="nav-item d-flex align-items-center justify-content-center text-center mx-1 nav-link" href="/admin/" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin tools"><i class="fas fa-crown{% if v.has_report_queue %} text-success{% endif %}"></i></a>
 			{% endif %}
 	</ul>
 
@@ -247,7 +245,7 @@
 												<img loading="lazy" src="{{p.thumb_url}}" class="post-img">
 											</a>
 										{% elif p.is_image %}
-											<a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#expandImageModal" data-bs-url="{{p.url}}">
+											<a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#expandImageModal" data-bs-url="{{p.url}}" onclick="expandDesktopImage('{{ p.realurl(v) }}')">
 												<img loading="lazy" src="{{p.thumb_url}}" class="post-img">
 											</a>
 										{% else %}
@@ -308,13 +306,13 @@
 									<div class="post-actions mt-2 d-none d-md-block">
 										<ul class="list-inline text-right d-flex">
 												{% if p.body %}
-												<li class="list-inline-item"><a href="javascript:void(0)" class="text-expand" data-bs-id="{{p.id}}"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a></li>
+												<a class="list-inline-item text-expand" href="javascript:void(0)" data-bs-id="{{p.id}}"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
 												{% endif %}
-												<li class="list-inline-item"><a target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a></li>
+												<a class="list-inline-item" target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a>
 						
-												<li class="list-inline-item"><a href="https://{{p.site}}/votes?link=t2_{{p.id}}"><i class="fas fa-arrows-v"></i>Votes</a></li>
+												<a class="list-inline-item" href="https://{{p.site}}/votes?link=t2_{{p.id}}"><i class="fas fa-arrows-v"></i>Votes</a>
 						
-												<li class="list-inline-item"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-copy"></i>Copy link</a></li>
+												<a class="list-inline-item copy-link" href="javascript:void(0);" role="button" data-clipboard-text="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-copy"></i>Copy link</a>
 																					
 									</ul>
 								</div>
@@ -324,16 +322,17 @@
 						<div class="card-footer d-block d-md-none mt-2">
 							<div class="post-actions">
 								<ul class="list-inline text-right d-flex">
-									<li class="list-inline-item mr-auto"><a target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a></li>
+									<a class="list-inline-item mr-auto" target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a>
 						
 									{% if p.body and request.path != "/changelog"%}
-									<li class="list-inline-item"><a href="javascript:void(0)" class="text-expand" data-bs-id="{{p.id}}"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a></li>
+										<a class="list-inline-item text-expand"><a href="javascript:void(0)" data-bs-id="{{p.id}}"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
 									{% endif %}
 						
-									<li class="list-inline-item"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-link"></i>Copy link</a></li>
-									<li id="voting-{{p.id}}-mobile" class="voting list-inline-item d-md-none">			
+									<a class="list-inline-item copy-link" href="javascript:void(0);" role="button"data-clipboard-text="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-link"></i>Copy link</a>
+
+									<a id="voting-{{p.id}}-mobile" class="voting list-inline-item d-md-none">			
 										<span id="post-score-{{p.id}}-mobile" class="score"{% if not p.is_banned %} data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="+{{ups}} | -{{downs}}"{% endif %}>{{score}}</span>
-									</li>
+									</a>
 								</ul>
 							</div>
 						</div>
