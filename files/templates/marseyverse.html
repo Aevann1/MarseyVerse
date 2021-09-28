@@ -245,7 +245,7 @@
 												<img loading="lazy" src="{{p.thumb_url}}" class="post-img">
 											</a>
 										{% elif p.is_image %}
-											<a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#expandImageModal" data-bs-url="{{p.url}}" onclick="expandDesktopImage('{{ p.realurl(v) }}')">
+											<a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#expandImageModal" data-bs-url="{{p.url}}" onclick="expandDesktopImage('{{p.url}}')">
 												<img loading="lazy" src="{{p.thumb_url}}" class="post-img">
 											</a>
 										{% else %}
