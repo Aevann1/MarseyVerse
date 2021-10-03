@@ -327,7 +327,7 @@
 									<a class="list-inline-item mr-auto" target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a>
 						
 									{% if p.body %}
-										<a class="list-inline-item mr-4"><a href="javascript:void(0)" onclick="expandText('{{p.id}}')"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
+										<a class="list-inline-item" href="javascript:void(0)" onclick="expandText('{{p.id}}')"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
 									{% endif %}
 						
 									<a class="list-inline-item copy-link" href="javascript:void(0);" role="button"data-clipboard-text="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-link"></i>Copy link</a>
