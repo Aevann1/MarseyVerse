@@ -208,13 +208,13 @@
 
  </head>
 
- <body id="{% if request.path != '/comments' %}frontpage{% endif %}" style="overflow-x: hidden;">
+ <body id="frontpage" style="overflow-x: hidden;">
 
 	
-<div class="container {% if request.path=='/' or '/post/' in request.path or '/comment/' in request.path %} transparent {% endif %}">
+<div class="container transparent">
 	<div class="row justify-content-around" id="main-content-row">
 
-		<div class="col h-100 {% if not '/message' in request.path %}custom-gutters{% endif %}" id="main-content-col">
+		<div class="col h-100 custom-gutters" id="main-content-col">
 
 			<div class="row no-gutters {% if listing %}mt-md-3{% elif not listing %}my-md-3{% endif %}">
 
@@ -276,7 +276,6 @@
 										{% endif %}
 										{% if p.stickied %}<i class="fas fa-thumbtack text-admin fa-rotate--45" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pinned post"></i>{% endif %}
 										{% if p.distinguish_level %}<i class="fas fa-broom text-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="MarseyVerse Admin, speaking officially"></i>{% endif %}
-										{% if p.is_pinned and request.path.startswith('/@') %}<i class="fas fa-thumbtack text-admin fa-rotate--45" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pinned to profile"></i>{% endif %}
 										{% if p.over_18 %}<span class="badge badge-danger text-small-extra mr-1">+18</span>{% endif %}
 										{% if p.is_bot %} <i class="fad fa-robot text-info" data-bs-toggle="tooltip" data-bs-placement="bottom"	data-bs-original-title="Bot"></i>{% endif %}
 										{% if p.is_blocking %}<i class="fas fa-user-minus text-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="You're blocking this user, but you can see this post because {{'it\'s an admin post' if p.distinguish_level else 'you\'re an admin'}}."></i>{% endif %}
@@ -309,7 +308,7 @@
 									<div class="post-actions mt-2 d-none d-md-block">
 										<ul class="list-inline text-right d-flex">
 												{% if p.body %}
-												<a class="list-inline-item" href="javascript:void(0)" onclick="expandText('{{p.id}}')"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
+												<a class="list-inline-item mr-4" href="javascript:void(0)" onclick="expandText('{{p.id}}')"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
 												{% endif %}
 												<a class="list-inline-item" target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a>
 						
@@ -327,7 +326,7 @@
 								<ul class="list-inline text-right d-flex">
 									<a class="list-inline-item mr-auto" target="_blank" href="https://{{p.site}}/post/{{p.id}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a>
 						
-									{% if p.body and request.path != "/changelog"%}
+									{% if p.body %}
 										<a class="list-inline-item"><a href="javascript:void(0)" onclick="expandText('{{p.id}}')"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
 									{% endif %}
 						
@@ -401,14 +400,6 @@
 		</div>
 	</div>
 </div>
-
-
-{% if request.path=='/' and g.system and g.timestamp>session.get('tooltip_last_dismissed',0)+60*60*24 and (not g.system.endswith('/chrome') and not g.system.endswith('/other')) and not g.system.endswith('/webview') %}
-
-<div id="mobile-prompt-container" class="fixed-bottom">
-	<div id="mobile-prompt" href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-container="#mobile-prompt-container" data-bs-placement="top" data-bs-trigger="click" title="Install the MarseyVerse webapp by saving this page to your home screen!"></div>
-</div>
-{% endif %}
 
 </body>
 
