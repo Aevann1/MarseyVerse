@@ -7,8 +7,6 @@ from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_compress import Compress
 from flask_limiter.util import get_ipaddr
-from flaskext.markdown import Markdown
-import gevent
 import requests
 import time
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -37,8 +35,6 @@ app.config["RATELIMIT_DEFAULTS_DEDUCT_WHEN"]=lambda:True
 app.config["RATELIMIT_DEFAULTS_EXEMPT_WHEN"]=lambda:False
 app.config["RATELIMIT_HEADERS_ENABLED"]=True
 
-
-Markdown(app)
 cache = Cache(app)
 Compress(app)
 
@@ -62,8 +58,7 @@ def before_request():
 	if not request.path.startswith("/assets"):
 		session.permanent = True
 
-		if not session.get("session_id"):
-			session["session_id"] = secrets.token_hex(16)
+		if not session.get("session_id"): session["session_id"] = secrets.token_hex(16)
 
 
 	if app.config["FORCE_HTTPS"] and request.url.startswith(
