@@ -99,12 +99,11 @@ def postcache():
 	pcm = requests.get("https://pcmemes.net/", headers={"Authorization": "sex"}).json()["data"]
 	gigachad = requests.get("https://gigachadlife.com/", headers={"Authorization": "sex"}).json()["data"]
 	weebzone = requests.get("https://weebzone.xyz/", headers={"Authorization": "sex"}).json()["data"]
-	marseytech = requests.get("https://marsey.tech/", headers={"Authorization": "sex"}).json()["data"]
 	dankchristian = requests.get("https://dankchristian.com/", headers={"Authorization": "sex"}).json()["data"]
 	listing = []
 
 	while count < 50:
-		for site in [drama,vidya,pcm,gigachad,weebzone,marseytech,dankchristian]:
+		for site in [drama,vidya,pcm,gigachad,weebzone,dankchristian]:
 			try: post = site[count]
 			except: continue
 			post = Post(post)
@@ -113,7 +112,6 @@ def postcache():
 			elif site == pcm: post.site = "pcmemes.net"
 			elif site == gigachad: post.site = "gigachadlife.com"
 			elif site == weebzone: post.site = "weebzone.xyz"
-			elif site == marseytech: post.site = "marsey.tech"
 			elif site == dankchristian:
 				post.site = "dankchristian.com"
 				post.downvotes = 0
