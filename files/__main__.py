@@ -96,20 +96,21 @@ def postcache():
 	count = 0
 	drama = requests.get("https://rdrama.net/", headers={"Authorization": "sex"}).json()["data"]
 	vidya = requests.get("https://vidya.cafe/", headers={"Authorization": "sex"}).json()["data"]
-	pcm = requests.get("https://pcmemes.net/", headers={"Authorization": "sex"}).json()["data"]
+	# pcm = requests.get("https://pcmemes.net/", headers={"Authorization": "sex"}).json()["data"]
 	gigachad = requests.get("https://gigachadlife.com/", headers={"Authorization": "sex"}).json()["data"]
 	weebzone = requests.get("https://weebzone.xyz/", headers={"Authorization": "sex"}).json()["data"]
 	dankchristian = requests.get("https://dankchristian.com/", headers={"Authorization": "sex"}).json()["data"]
 	listing = []
 
 	while count < 50:
-		for site in [drama,vidya,pcm,gigachad,weebzone,dankchristian]:
+		# for site in [drama,vidya,pcm,gigachad,weebzone,dankchristian]:
+		for site in [drama,vidya,gigachad,weebzone,dankchristian]:
 			try: post = site[count]
 			except: continue
 			post = Post(post)
 			if hasattr(post, "url") and post.url and (post.url.lower().endswith('.jpg') or post.url.lower().endswith('.png') or post.url.lower().endswith('.webp') or post.url.lower().endswith('.gif') or post.url.lower().endswith('.jpeg') or post.url.lower().endswith('?maxwidth=9999')): post.is_image = True
 			if site == drama: post.site = "rdrama.net"
-			elif site == pcm: post.site = "pcmemes.net"
+			# elif site == pcm: post.site = "pcmemes.net"
 			elif site == gigachad: post.site = "gigachadlife.com"
 			elif site == weebzone: post.site = "weebzone.xyz"
 			elif site == dankchristian:
