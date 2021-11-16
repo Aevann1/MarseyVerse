@@ -55,7 +55,6 @@ def before_request():
 
 	g.timestamp = int(time.time())
 
-	#do not access session for static files
 	if not request.path.startswith("/assets"):
 		session.permanent = True
 
@@ -121,7 +120,7 @@ def postcache():
 				post.site = "vidya.cafe"
 				post.downvotes = 0
 
-			if not hasattr(post, "upvotes") or not hasattr(post, "downvotes"): continue
+			if post.club or not hasattr(post, "upvotes") or not hasattr(post, "downvotes"): continue
 			if time.time() - post.created_utc < 86400: listing.append(post)
 		count += 1
 
