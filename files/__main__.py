@@ -120,7 +120,7 @@ def postcache():
 				post.site = "vidya.cafe"
 				post.downvotes = 0
 
-			if post.club or not hasattr(post, "upvotes") or not hasattr(post, "downvotes"): continue
+			if hasattr(post, "club") and post.club or not hasattr(post, "upvotes") or not hasattr(post, "downvotes"): continue
 			if time.time() - post.created_utc < 86400: listing.append(post)
 		count += 1
 
