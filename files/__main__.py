@@ -108,6 +108,8 @@ def postcache():
 			try: post = site[count]
 			except: continue
 			post = Post(post)
+			if hasattr(post, "club") and post.club: continue
+			if not hasattr(post, "upvotes") or not hasattr(post, "downvotes"): continue
 			if hasattr(post, "url") and post.url and (post.url.lower().endswith('.jpg') or post.url.lower().endswith('.png') or post.url.lower().endswith('.webp') or post.url.lower().endswith('.gif') or post.url.lower().endswith('.jpeg') or post.url.lower().endswith('?maxwidth=9999')): post.is_image = True
 			if site == drama: post.site = "rdrama.net"
 			# elif site == pcm: post.site = "pcmemes.net"
@@ -120,7 +122,6 @@ def postcache():
 				post.site = "vidya.cafe"
 				post.downvotes = 0
 
-			if hasattr(post, "club") and post.club or not hasattr(post, "upvotes") or not hasattr(post, "downvotes"): continue
 			if time.time() - post.created_utc < 86400: listing.append(post)
 		count += 1
 
