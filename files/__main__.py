@@ -105,7 +105,7 @@ def postcache():
 			try: post = site[count]
 			except: continue
 			post = Post(post)
-			if hasattr(post, "club") and post.club or hasattr(post, "upvotes") or not hasattr(post, "downvotes"): continue
+			if hasattr(post, "club") and post.club or not hasattr(post, "upvotes") or not hasattr(post, "downvotes"): continue
 			if hasattr(post, "url") and post.url and (post.url.lower().endswith('.jpg') or post.url.lower().endswith('.png') or post.url.lower().endswith('.webp') or post.url.lower().endswith('.gif') or post.url.lower().endswith('.jpeg') or post.url.lower().endswith('?maxwidth=9999')): post.is_image = True
 			if site == drama: post.site = "rdrama.net"
 			elif site == weebzone: post.site = "weebzone.xyz"
