@@ -86,7 +86,7 @@ def after_request(response):
 
 class Post(object):
 	  
-	def __init__(self, my_dict, site):
+	def __init__(self, my_dict):
 		for key, val in my_dict.items():
 			self.key = val
 
