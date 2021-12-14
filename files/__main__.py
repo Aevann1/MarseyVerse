@@ -84,7 +84,7 @@ def after_request(response):
 	return response
 
 
-class Post(object, site):
+class Post(object):
       
     def __init__(self, my_dict, site):
           
@@ -105,7 +105,7 @@ def postcache():
 		for site, val in sites:
 			try: post = val[count]
 			except: continue
-			post = Post(post, site)
+			post = Post(post)
 			if hasattr(post, "club") and post.club: continue
 
 			post.site = site.replace("htttps://", "")
