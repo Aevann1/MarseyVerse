@@ -105,7 +105,7 @@ def postcache():
 			try: post = val[count]
 			except: continue
 			post = Post(post)
-			if hasattr(post, "club") and post.club or not hassattr(post, "created_utc"): continue
+			if hasattr(post, "club") and post.club or not hasattr(post, "created_utc"): continue
 
 			post.site = site.replace("htttps://", "")
 			if "vidya" in site or "dankchristian" in site: post.downvotes = 0
