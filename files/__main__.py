@@ -85,10 +85,9 @@ def after_request(response):
 
 
 class Post(object):
-      
-    def __init__(self, my_dict, site):
-          
-        for key, val in my_dict:
+	  
+	def __init__(self, my_dict, site):
+		for key, val in my_dict:
 			self.key = val.replace("': '/", f"': '{site}/")
 
 @cache.memoize(timeout=3600)
