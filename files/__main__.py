@@ -88,7 +88,7 @@ class Post(object):
 	  
 	def __init__(self, my_dict):
 		for key, val in my_dict.items():
-			self.key = val
+            setattr(self, key, val)
 
 @cache.memoize(timeout=3600)
 def postcache():
