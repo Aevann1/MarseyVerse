@@ -89,7 +89,7 @@ class Post(object):
     def __init__(self, my_dict, site):
           
         for key in my_dict:
-            setattr(self, key, my_dict[key].replace(':"/', f':"{site}/'))
+            setattr(self, key, my_dict[key].replace("': '/", f"': '{site}/"))
 
 @cache.memoize(timeout=3600)
 def postcache():
@@ -125,8 +125,6 @@ def dump():
 
 @app.get("/")
 def marseyverse():
-	c = requests.get("https://rdrama.net/", headers={"Authorization": "sex"}).json()["data"]
-	print(c)
 	return render_template("marseyverse.html", listing=postcache())
 
 @app.get("/assets/favicon.ico")
