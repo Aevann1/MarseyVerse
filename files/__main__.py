@@ -88,8 +88,8 @@ class Post(object):
       
     def __init__(self, my_dict, site):
           
-        for key in my_dict:
-            setattr(self, key, my_dict[key].replace("': '/", f"': '{site}/"))
+        for key, val in my_dict:
+			self.key = val.replace("': '/", f"': '{site}/")
 
 @cache.memoize(timeout=3600)
 def postcache():
