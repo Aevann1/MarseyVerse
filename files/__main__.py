@@ -84,37 +84,34 @@ def after_request(response):
 	return response
 
 
-class Post(object):
+class Post(object, site):
       
-    def __init__(self, my_dict):
+    def __init__(self, my_dict, site):
           
         for key in my_dict:
-            setattr(self, key, my_dict[key])
+            setattr(self, key, my_dict[key].replace('"/', f'"{site}/'))
 
 @cache.memoize(timeout=3600)
 def postcache():
-	count = 0
-	drama = requests.get("https://rdrama.net/", headers={"Authorization": "sex"}).json()["data"]
-	vidya = requests.get("https://vidya.cafe/", headers={"Authorization": "sex"}).json()["data"]
-	weebzone = requests.get("https://weebzone.xyz/", headers={"Authorization": "sex"}).json()["data"]
-	dankchristian = requests.get("https://dankchristian.com/", headers={"Authorization": "sex"}).json()["data"]
 	listing = []
 
+	count = 0
+	siteslist = ["https://rdrama.net", "https://vidya.cafe", "https://weebzone.xyz", "https://dankchristian.com"]
+	sites = {}
+	for site in siteslist:
+		sites[site] = requests.get(site, headers={"Authorization": "sex"}).json()["data"]
+
 	while count < 50:
-		for site in [drama,vidya,weebzone,dankchristian]:
-			try: post = site[count]
+		for site, val in sites:
+			try: post = val[count]
 			except: continue
-			post = Post(post)
-			if hasattr(post, "club") and post.club or not hasattr(post, "upvotes") or not hasattr(post, "downvotes"): continue
-			if hasattr(post, "url") and post.url and (post.url.lower().endswith('.jpg') or post.url.lower().endswith('.png') or post.url.lower().endswith('.webp') or post.url.lower().endswith('.gif') or post.url.lower().endswith('.jpeg') or post.url.lower().endswith('?maxwidth=9999')): post.is_image = True
-			if site == drama: post.site = "rdrama.net"
-			elif site == weebzone: post.site = "weebzone.xyz"
-			elif site == dankchristian:
-				post.site = "dankchristian.com"
-				post.downvotes = 0
-			elif site == vidya:
-				post.site = "vidya.cafe"
-				post.downvotes = 0
+			post = Post(post, site)
+			if hasattr(post, "club") and post.club: continue
+
+			post.site = site.replace("htttps://", "")
+			if "vidya" in site or "dankchristian" in site: post.downvotes = 0
+
+			if hasattr(post, "url") and post.url and any(post.url.lower().endswith(x) for x in ('.jpg', '.jpeg', '.png', '.webp', '.gif', '?maxwidth=9999')): post.is_image = True
 
 			if time.time() - post.created_utc < 86400: listing.append(post)
 		count += 1
