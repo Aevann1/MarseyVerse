@@ -102,7 +102,7 @@ def postcache():
 		sites[site] = requests.get(site, headers={"Authorization": "sex"}).json()["data"]
 
 	while count < 50:
-		for site, val in sites:
+		for site, val in sites.items():
 			try: post = val[count]
 			except: continue
 			post = Post(post)
