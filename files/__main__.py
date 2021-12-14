@@ -88,7 +88,7 @@ class Post(object):
 	  
 	def __init__(self, my_dict, site):
 		for key, val in my_dict.items():
-			self.key = val.replace("': '/", f"': '{site}/")
+			self.key = val
 
 @cache.memoize(timeout=3600)
 def postcache():
@@ -104,7 +104,7 @@ def postcache():
 		for site, val in sites.items():
 			try: post = val[count]
 			except: continue
-			post = Post(post, site)
+			post = Post(post)
 			if hasattr(post, "club") and post.club: continue
 
 			post.site = site.replace("htttps://", "")
