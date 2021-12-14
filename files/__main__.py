@@ -105,7 +105,7 @@ def postcache():
 		for site, val in sites.items():
 			try: post = val[count]
 			except: continue
-			post = Post(post)
+			post = Post(post, site)
 			if hasattr(post, "club") and post.club: continue
 
 			post.site = site.replace("htttps://", "")
