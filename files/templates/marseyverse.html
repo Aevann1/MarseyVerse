@@ -288,7 +288,7 @@
 										&nbsp;
 										{{p.site}}
 										&nbsp;
-										({% if p.url %}{{p.domain}}{% else %}text post{% endif %})
+										({% if p.is_image %}image post{% elif p.url %}{{p.domain}}{% else %}text post{% endif %})
 										
 										{% if p.edited_utc %}&nbsp;&nbsp;Edited <span data-bs-toggle="tooltip" data-bs-placement="bottom" id="edited_timestamp-{{p.id}}" title="">{{p.edited_string}}</span>{% endif %}
 									</div>
