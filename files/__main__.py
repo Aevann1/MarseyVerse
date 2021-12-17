@@ -107,7 +107,7 @@ def postcache():
 			post = Post(post)
 			if hasattr(post, "club") and post.club or not hasattr(post, "created_utc"): continue
 
-			post.site = site.replace("htttps://", "")
+			post.site = site.replace("https://", "")
 			if "vidya" in site or "dankchristian" in site: post.downvotes = 0
 
 			if hasattr(post, "url") and post.url and any(post.url.lower().endswith(x) for x in ('.jpg', '.jpeg', '.png', '.webp', '.gif', '?maxwidth=9999')): post.is_image = True
