@@ -98,7 +98,8 @@ def postcache():
 	siteslist = ["https://rdrama.net", "https://vidya.cafe", "https://pcmemes.net", "https://weebzone.xyz", "https://dankchristian.com"]
 	sites = {}
 	for site in siteslist:
-		sites[site] = requests.get(site, headers={"Authorization": "sex"}).json()["data"]
+		try: sites[site] = requests.get(site, headers={"Authorization": "sex"}).json()["data"]
+		except: print(site)
 
 	while count < 50:
 		for site, val in sites.items():
