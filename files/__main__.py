@@ -99,7 +99,7 @@ def postcache():
 	sites = {}
 	for site in siteslist:
 		try: sites[site] = requests.get(site, headers={"Authorization": "sex"}).json()["data"]
-		except: print(site)
+		except: pass
 
 	while count < 50:
 		for site, val in sites.items():
