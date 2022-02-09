@@ -4,9 +4,7 @@ from os import environ
 import secrets
 from flask import *
 from flask_caching import Cache
-from flask_limiter import Limiter
 from flask_compress import Compress
-from flask_limiter.util import get_ipaddr
 import requests
 import time
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -38,15 +36,6 @@ app.config["RATELIMIT_HEADERS_ENABLED"]=True
 
 cache = Cache(app)
 Compress(app)
-
-limiter = Limiter(
-	app,
-	key_func=get_ipaddr,
-	default_limits=["100/minute"],
-	headers_enabled=True,
-	strategy="fixed-window"
-)
-
 
 
 
@@ -132,7 +121,6 @@ def favicon():
 	return send_file(f"./assets/icon.gif")
 
 @app.route('/assets/<path:path>')
-@limiter.exempt
 def static_service(path):
 	resp = make_response(send_from_directory('./assets', path))
 	if request.path.endswith('.gif') or request.path.endswith('.ttf') or request.path.endswith('.woff') or request.path.endswith('.woff2'):
