@@ -1,6 +1,5 @@
 import gevent.monkey
 gevent.monkey.patch_all()
-from os import environ
 import secrets
 from flask import *
 from flask_caching import Cache
@@ -14,16 +13,9 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=3)
 app.url_map.strict_slashes = False
 app.jinja_env.auto_reload = True
 
-app.config['SECRET_KEY'] = environ.get('MASTER_KEY')
 app.config["SERVER_NAME"] = "marseyverse.xyz"
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
-app.config["SESSION_COOKIE_NAME"] = "session_marseyverse"
-app.config["VERSION"] = "1.0.0"
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-app.config["SESSION_COOKIE_SECURE"] = 1
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-app.config["PERMANENT_SESSION_LIFETIME"] = 60 * 60 * 24 * 365
-app.config["SESSION_REFRESH_EACH_REQUEST"] = True
 app.config["FORCE_HTTPS"] = 1
 app.jinja_env.cache = {}
 app.config["CACHE_TYPE"] = "filesystem"
