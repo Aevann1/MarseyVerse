@@ -84,7 +84,7 @@ def postcache():
 	listing = []
 
 	count = 0
-	siteslist = ("https://rdrama.net", "https://vidya.cafe", "https://weebzone.xyz", "https://dankchristian.com", "https://pcmemes.net", "https://ruqqus.us")
+	siteslist = ("https://rdrama.net", "https://vidya.cafe", "https://pcmemes.net", "https://cringetopia.org", "https://watchpeopledie.co")
 	sites = {}
 	for site in siteslist:
 		try: sites[site] = requests.get(site, headers={"Authorization": "sex"}).json()["data"]
