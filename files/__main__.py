@@ -18,7 +18,7 @@ app.config['SECRET_KEY'] = environ.get('MASTER_KEY')
 app.config["SERVER_NAME"] = "marseyverse.xyz"
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
 app.config["SESSION_COOKIE_NAME"] = "session_marseyverse"
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
 app.config["SESSION_COOKIE_SECURE"] = 1
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["PERMANENT_SESSION_LIFETIME"] = 60 * 60 * 24 * 365
@@ -83,7 +83,7 @@ def postcache():
 	listing = []
 
 	count = 0
-	siteslist = ("https://rdrama.net", "https://vidya.cafe", "https://pcmemes.net", "https://cringetopia.org", "https://watchpeopledie.co")
+	siteslist = ("https://rdrama.net", "https://vidya.cafe", "https://pcmemes.net", "https://cringetopia.org")
 	sites = {}
 	for site in siteslist:
 		try: sites[site] = requests.get(site, headers={"Authorization": "sex"}).json()["data"]
@@ -97,7 +97,7 @@ def postcache():
 			if hasattr(post, "club") and post.club or not hasattr(post, "created_utc"): continue
 
 			post.site = site.replace("https://", "")
-			if "vidya" in site or "dankchristian" in site: post.downvotes = 0
+			if "vidya" in site: post.downvotes = 0
 
 			if hasattr(post, "url") and post.url and any(post.url.lower().endswith(x) for x in ('.jpg', '.jpeg', '.png', '.webp', '.gif', '?maxwidth=9999')): post.is_image = True
 
